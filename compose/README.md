@@ -57,4 +57,4 @@ docker compose -f tiler.yaml up tiler-imposm
 ```
 
 Images are published to `ghcr.io/osm-seed/<name>` by chartpress on every push to
-`develop`; nothing here is used by that pipeline.
+`main`; nothing here is used by that pipeline.

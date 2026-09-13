@@ -41,7 +41,7 @@ Helm chart. Every image folder has a short README.
 | [`osmcha-db`](images/osmcha-db), [`osmcha-web`](images/osmcha-web) | [OSMCha](https://osmcha.org/) database and frontend |
 | [`level0`](images/level0) | [Level0](https://github.com/Zverik/Level0) text editor |
 
-Images are published to `ghcr.io/osm-seed/<name>` on every push to `develop`.
+Images are published to `ghcr.io/osm-seed/<name>` on every push to `main` and on tags.
 
 ## Run it
 
@@ -72,10 +72,8 @@ Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 
 ## Credits and license
 
-osm-seed was created by [Development Seed](https://developmentseed.org/) in 2018
-([developmentseed/osm-seed](https://github.com/developmentseed/osm-seed)). Since January
-2026 it lives in its own organization and is maintained by
-[@Rub21](https://github.com/Rub21), [@batpad](https://github.com/batpad) and
-[@geohacker](https://github.com/geohacker).
-
+osm-seed was born at [Development Seed](https://developmentseed.org/) in 2018
+([developmentseed/osm-seed](https://github.com/developmentseed/osm-seed)), where it was
+built and maintained until 2025. Since January 2026 it lives in its own organization,
+maintained by [Ruben Lopez](https://github.com/Rub21) ([GeoCompas](https://geocompas.org))
 MIT License, see [LICENSE.txt](LICENSE.txt).
