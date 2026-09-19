@@ -69,6 +69,10 @@ data:
         unset beresp.http.X-Cache-Status;
         unset beresp.http.Set-Cookie;
 
+        # Martin echoes the request Origin and sends Vary: Origin, which stores
+        # one copy per site. Tiles are public: keep a single copy for everyone.
+        set beresp.http.Vary = "Accept-Encoding";
+
         if (bereq.url ~ "^/maps/(ne|osm_land)/") {
             # Static tiles: separate storage, near-infinite TTL
             set beresp.storage = storage.static;
@@ -99,6 +103,9 @@ data:
 
     sub vcl_deliver {
         set resp.http.Cache-Control = "public, max-age=60";
+
+        # Fixed wildcard so one cached copy is valid for every site
+        set resp.http.Access-Control-Allow-Origin = "*";
 
         if (obj.hits > 0) {
             set resp.http.X-Cache = "HIT";
