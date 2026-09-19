@@ -66,11 +66,14 @@ spec:
               port: http
             initialDelaySeconds: 10
             periodSeconds: 10
+            timeoutSeconds: {{ .Values.tilerVarnish.readinessTimeoutSeconds | default 5 }}
           livenessProbe:
             tcpSocket:
               port: http
             initialDelaySeconds: 30
             periodSeconds: 20
+            timeoutSeconds: {{ .Values.tilerVarnish.livenessTimeoutSeconds | default 10 }}
+            failureThreshold: {{ .Values.tilerVarnish.livenessFailureThreshold | default 10 }}
           {{- include "osm-seed.resources" .Values.tilerVarnish | nindent 10 }}
           volumeMounts:
             - name: varnish-vcl
