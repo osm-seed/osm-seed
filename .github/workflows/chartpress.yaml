@@ -1,12 +1,17 @@
 name: Chartpress Publish
 on:
   push:
-    branches: [main]
+    branches: [main, 'build-*']
     tags: ['*']
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE.txt']
   pull_request:
     branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE.txt']
 jobs:
   build:
+    # Name a branch build-<something> to publish a dev chart from it.
+    # Its pull request is skipped, so the branch does not build twice.
+    if: github.event_name == 'push' || !startsWith(github.head_ref, 'build-')
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -44,8 +49,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GHCR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
-        # Pull requests only build to validate. Pushes to main and tags publish
-        # the chart and push the images. Chartpress uses the git history
+        # Pull requests only build to validate. Pushes to main, build-* and tags
+        # publish the chart and push the images. Chartpress uses the git history
         # (fetch-depth: 0) to find which images changed.
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           chartpress --builder docker-buildx
