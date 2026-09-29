@@ -1,3 +1,9 @@
+### Unreleased
+
+- Add the `tiler-server-martin` image: a generic Martin server that publishes the imposm tables as tile sources. It is built by chartpress and fills `tilerServerMartin.image`.
+- Add Martin and Varnish to `compose/tiler.yaml`. `tilerVarnish.image` now defaults to `varnish:7.5`.
+- Remove the OHM-only variables `OHM_DOMAIN` and `AWS_*` from `tilerServerMartin.env`.
+
 ### v2.0.0
 
 Breaking changes. Upgrading in place from an older release is not supported. Install a new release and migrate data.

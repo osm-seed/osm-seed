@@ -1,9 +1,8 @@
 apiVersion: v2
 name: osm-seed
-description: Helm chart to run a full OpenStreetMap-style stack on Kubernetes - 
-  website and API, database with backups, replication and planet dumps, vector 
-  tiles, Nominatim, Overpass, Taginfo, Tasking Manager, OSMCha, Level0 and 
-  monitoring
+description: Helm chart to run a full OpenStreetMap-style stack on Kubernetes - website
+  and API, database with backups, replication and planet dumps, vector tiles, Nominatim,
+  Overpass, Taginfo, Tasking Manager, OSMCha, Level0 and monitoring
 type: application
 kubeVersion: ">=1.25.0-0"
 home: https://github.com/osm-seed/osm-seed
@@ -29,4 +28,4 @@ maintainers:
   - name: batpad
     url: https://github.com/batpad
 appVersion: 2.0.0
-version: 0.0.1-set.by.chartpress
+version: 2.0.0

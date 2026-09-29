@@ -25,8 +25,8 @@ adminEmail: admin@osmseed.org
 webDb:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/db"
+    tag: "2.0.0"
   priorityClass: "high-priority"
   env:
     POSTGRES_DB: openstreetmap
@@ -181,8 +181,8 @@ memcached:
 # ====================================================================================================
 cgimap:
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/cgimap"
+    tag: "2.0.0"
   enabled: false
   replicaCount: 1
   serviceAnnotations: {}
@@ -205,8 +205,8 @@ cgimap:
 fullHistory:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/full-history"
+    tag: "2.0.0"
   priorityClass: "low-priority"
   serviceAccount:
     enabled: false
@@ -230,8 +230,8 @@ fullHistory:
 changesetsDump:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/changesets-dump"
+    tag: "2.0.0"
   priorityClass: "low-priority"
   serviceAccount:
     enabled: false
@@ -252,8 +252,8 @@ changesetsDump:
 # ====================================================================================================
 dbBackupRestore:
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/backup-restore"
+    tag: "2.0.0"
   cronjobs:
     - name: web-db
       serviceAccount:
@@ -330,8 +330,8 @@ dbBackupRestore:
 planetDump:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/planet-dump"
+    tag: "2.0.0"
   serviceAccount:
     enabled: false
     name: ""
@@ -355,8 +355,8 @@ planetDump:
 replicationJob:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/replication-job"
+    tag: "2.0.0"
   serviceAccount:
     enabled: false
     name: ""
@@ -376,8 +376,8 @@ replicationJob:
 populateApidb:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/populate-apidb"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   serviceAccount:
     enabled: false
@@ -396,8 +396,8 @@ populateApidb:
 osmProcessor:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/osm-processor"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   env:
     URL_FILE_TO_PROCESS: "http://download.geofabrik.de/europe/monaco-latest.osm.pbf"
@@ -409,8 +409,8 @@ osmProcessor:
 tilerDb:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/tiler-db"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   env:
     POSTGRES_HOST: tiler-db
@@ -464,8 +464,8 @@ tilerDb:
 tilerImposm:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/tiler-imposm"
+    tag: "2.0.0"
   serviceAccount:
     enabled: false
     name: ""
@@ -518,8 +518,8 @@ tilerImposm:
 tilerServer:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/tiler-server"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   serviceAccount:
     enabled: false
@@ -576,7 +576,7 @@ tilerServer:
     values: ["web"]
 
 # ====================================================================================================
-# Variables for tiler-server-martin (Martin + Nginx vector tile server)
+# Variables for tiler-server-martin (Martin vector tile server)
 # ====================================================================================================
 tilerServerMartin:
   enabled: false
@@ -586,15 +586,12 @@ tilerServerMartin:
   priorityClass: "medium-priority"
   replicaCount: 1
   # POSTGRES_* are injected from the tiler-db configmap (envFrom).
+  # The default image publishes every table in MARTIN_SCHEMAS. Set your own image
+  # to serve custom functions or materialized views.
   env:
-    OHM_DOMAIN: osmseed.org
     MARTIN_WORKER_PROCESSES: 8
     MARTIN_POOL_SIZE: 50
-    # Only needed to publish vtiles_languages.geojson to S3.
-    # If AWS_S3_BUCKET is empty the upload is skipped.
-    AWS_S3_BUCKET: ""
-    AWS_ACCESS_KEY_ID: ""
-    AWS_SECRET_ACCESS_KEY: ""
+    MARTIN_SCHEMAS: public
   resources: {}
   nodeSelector: {}
   nodeAffinity:
@@ -608,8 +605,8 @@ tilerServerMartin:
 tilerVarnish:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "varnish"
+    tag: "7.5"
   priorityClass: "medium-priority"
   replicaCount: 1
   serviceAnnotations: {}
@@ -654,8 +651,7 @@ osmxAdiffBuilder:
     failureThreshold: 3
   # WORKDIR inside the container is /data
   env:
-    PLANET_PBF_URL: 
-      https://planet.osmseed.org/planet/planet-latest.osm.pbf
+    PLANET_PBF_URL: https://planet.osmseed.org/planet/planet-latest.osm.pbf
     REPLICATION_URL: https://planet.osmseed.org/replication/minute
     API_URL: https://www.osmseed.org
     OSMX_INITIAL_SEQNUM: "0"
@@ -824,8 +820,8 @@ tmDb:
 tmApi:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/tasking-manager-api"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   replicaCount: 1
   ingress:
@@ -901,8 +897,8 @@ nominatimUI:
 nominatimApi:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/nominatim"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   serviceAnnotations: {}
   replicaCount: 1
@@ -975,8 +971,8 @@ nominatimApi:
 overpassApi:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/overpass-api"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   serviceAnnotations: {}
   ingress:
@@ -1024,8 +1020,8 @@ overpassApi:
 taginfoWeb:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/taginfo-web"
+    tag: "2.0.0"
   replicas: 1
   priorityClass: "medium-priority"
   serviceAccount:
@@ -1063,8 +1059,8 @@ taginfoWeb:
 taginfoDataProcessor:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/taginfo"
+    tag: "2.0.0"
   schedule: "0 2 */3 * *"
   activeDeadlineSeconds: 86400
   concurrencyPolicy: Forbid
@@ -1098,8 +1094,8 @@ taginfoDataProcessor:
 osmSimpleMetrics:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/osm-simple-metrics"
+    tag: "2.0.0"
   serviceAccount:
     enabled: false
     name: ""
@@ -1139,8 +1135,8 @@ monitoringReplication:
 changesetReplicationJob:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/changeset-replication-job"
+    tag: "2.0.0"
   serviceAccount:
     enabled: false
     name: ""
@@ -1158,8 +1154,8 @@ changesetReplicationJob:
 osmchaWeb:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/osmcha-web"
+    tag: "2.0.0"
 # ====================================================================================================
 # Variables for osmcha Api
 # ====================================================================================================
@@ -1207,8 +1203,8 @@ osmchaApi:
 osmchaDb:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/osmcha-db"
+    tag: "2.0.0"
   priorityClass: "medium-priority"
   env:
     POSTGRES_DB: osmcha-db
@@ -1238,14 +1234,14 @@ osmchaDb:
 planetFiles:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/planet-files"
+    tag: "2.0.0"
 
 level0:
   enabled: false
   image:
-    name: ""
-    tag: ""
+    name: "ghcr.io/osm-seed/level0"
+    tag: "2.0.0"
   replicas: 1
   priorityClass: "medium-priority"
   serviceAccount:

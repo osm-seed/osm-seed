@@ -43,6 +43,9 @@ charts:
     tiler-server:
       valuesPath: tilerServer.image
       contextPath: images/tiler-server
+    tiler-server-martin:
+      valuesPath: tilerServerMartin.image
+      contextPath: images/tiler-server-martin
     tasking-manager-api:
       valuesPath: tmApi.image
       contextPath: images/tasking-manager-api

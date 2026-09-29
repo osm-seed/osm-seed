@@ -37,7 +37,7 @@ docker compose -f web.yaml -f cgimap.yaml up            # website + cgimap
 | `db-backup-restore.yaml` | db-backup-restore | |
 | `planet.yaml` | osm-processor, replication-job, planet-dump, full-history, changesets-dump, changeset-replication-job, planet-files | planet-files `8081`, `8082` |
 | `osm-simple-metrics.yaml` | osm-simple-metrics | |
-| `tiler.yaml` | tiler-db, tiler-server | tiler-db `5432`, tiles `9090` |
+| `tiler.yaml` | tiler-db, tiler-server, tiler-server-martin, tiler-varnish | tiler-db `5432`, Tegola `9090`, Martin `9091`, Varnish `6081` |
 | `nominatim.yaml` | nominatim-api | `8080` |
 | `overpass.yaml` | overpass-api | `8081` |
 | `taginfo.yaml` | taginfo_data, taginfo_web | `4567` |

@@ -33,7 +33,7 @@ Helm chart. Every image folder has a short README.
 | [`planet-files`](images/planet-files) | Web page that serves the planet and replication files |
 | [`backup-restore`](images/backup-restore) | Database backups to S3 and restores |
 | [`osm-simple-metrics`](images/osm-simple-metrics) | Basic edit metrics |
-| [`tiler-db`](images/tiler-db), [`tiler-imposm`](images/tiler-imposm), [`tiler-server`](images/tiler-server) | Vector tiles: PostGIS, imposm3 import and updates, Tegola |
+| [`tiler-db`](images/tiler-db), [`tiler-imposm`](images/tiler-imposm), [`tiler-server`](images/tiler-server), [`tiler-server-martin`](images/tiler-server-martin), [`tiler-varnish`](images/tiler-varnish) | Vector tiles: PostGIS, imposm3 import and updates, Tegola or Martin, Varnish cache |
 | [`nominatim`](images/nominatim) | [Nominatim](https://nominatim.org/) geocoder |
 | [`overpass-api`](images/overpass-api) | [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API) |
 | [`taginfo`](images/taginfo), [`taginfo-web`](images/taginfo-web) | [Taginfo](https://wiki.openstreetmap.org/wiki/Taginfo) databases and website |

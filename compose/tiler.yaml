@@ -58,3 +58,35 @@ services:
       - ./envs/.env.tiler-db
       - ./envs/.env.tiler-server
     restart: always
+  # ######################################################
+  # ### Tiler server with Martin (alternative to Tegola)
+  # ######################################################
+  tiler-server-martin:
+    image: osmseed-tiler-server-martin:v1
+    build:
+      context: ../images/tiler-server-martin
+      dockerfile: Dockerfile
+    ports:
+      - "9091:80"
+    env_file:
+      - ./envs/.env.tiler-db
+    depends_on:
+      - tiler-db
+    restart: always
+  # ######################################################
+  # ### Varnish cache in front of Martin
+  # ######################################################
+  tiler-varnish:
+    image: varnish:7.5
+    ports:
+      - "6081:6081"
+    volumes:
+      - ../images/tiler-varnish/default.vcl:/etc/varnish/default.vcl:ro
+    command: >
+      varnishd -F
+      -a :6081
+      -f /etc/varnish/default.vcl
+      -s malloc,${VARNISH_SIZE:-1G}
+    depends_on:
+      - tiler-server-martin
+    restart: always

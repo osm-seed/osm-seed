@@ -79,7 +79,7 @@ data:
             set beresp.ttl = 365d;
             set beresp.grace = 30d;
             set beresp.keep = 7d;
-        } else if (bereq.url ~ "^/maps/[^/]+/[0-5]/") {
+        } else if (bereq.url ~ "^(/maps)?/[^/]+/[0-5]/") {
             # Dynamic low zooms (0-5): not invalidated via BAN, refreshed by short TTL
             set beresp.storage = storage.dynamic;
             set beresp.ttl = 24h;
