@@ -55,7 +55,6 @@ Services use the same name as their workload.
 | Values key | Resource | What it does |
 |---|---|---|
 | `webDb` | `web-db` (StatefulSet) | PostgreSQL for the website and API (apidb) |
-| `webDbReplica` | `web-db-replica` (StatefulSet) | Streaming replica of web-db (hot standby, read only) on another node |
 | `webApi` | `web-api` (Deployment) | openstreetmap-website: website + API 0.6 |
 | `memcached` | `memcached` | Session cache for the website |
 | `cgimap` | `cgimap` | C++ implementation of the read-only API calls |

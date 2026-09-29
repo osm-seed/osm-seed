@@ -111,7 +111,7 @@ spec:
               while true; do
                 last=$(pgbackrest --stanza=main info --output=json | grep -o '"stop":[0-9][0-9]*' | tail -1 | cut -d: -f2)
                 if [ -z "$last" ] || [ $(( $(date +%s) - last )) -ge {{ mul .Values.webDb.pgbackrest.backupIntervalHours 3600 }} ]; then
-                  if [ "$(date +%-d)" -lt 8 ]; then type=full; else type=diff; fi
+                  if [ "$(date +%u)" = 7 ]; then type=full; else type=diff; fi
                   pgbackrest --stanza=main backup --type=$type
                 fi
                 sleep 3600

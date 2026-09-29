@@ -83,7 +83,7 @@ webDb:
   serviceAccount:
     enabled: false
     name: ""
-  # WAL archiving and weekly base backups to S3 with pgBackRest, same setup as OSMF.
+  # WAL archiving and daily base backups to S3 with pgBackRest, same setup as OSMF.
   # Requires postgresqlConfig.enabled. Enabling it restarts the database.
   pgbackrest:
     enabled: false
@@ -98,48 +98,17 @@ webDb:
     s3KeySecret: ""
     # Encrypt the repo with aes-256-cbc. Keep this value safe, backups can't be read without it
     cipherPass: ""
-    # Number of full backups to keep
+    # Number of full backups to keep (weekly fulls, so 2 = 1-2 weeks of history)
     retentionFull: 2
-    # Hours between base backups. Full in the first 7 days of the month, diff the rest
-    backupIntervalHours: 168
+    # Seconds before postgres closes a WAL segment that is not full and sends it to S3.
+    # It is the max data loss when the disk is lost
+    archiveTimeout: 60
+    # Hours between base backups. Full on Sundays, diff the other days
+    backupIntervalHours: 24
     # Max WAL queued for archive-push (e.g. 10GiB). Above it pgbackrest drops WAL so pg_wal
     # doesn't fill the disk, and the archive gets a gap. Empty = no limit
     archivePushQueueMax: ""
     resources: {}
-# ====================================================================================================
-# web-db-replica: streaming replica of web-db (hot standby, read only) on another node
-# ====================================================================================================
-webDbReplica:
-  enabled: false
-  # Requires webDb.postgresqlConfig.enabled. Uses webDb image, credentials and config.
-  # It connects with the webDb POSTGRES_USER (superuser) and uses no replication slot:
-  # the primary keeps walKeepSize of WAL. If the replica is down longer than that it
-  # recovers the missing WAL from S3 (webDb.pgbackrest.enabled), otherwise delete its
-  # volume to rebuild it from the primary.
-  walKeepSize: 1GB
-  priorityClass: "high-priority"
-  persistenceDisk:
-    enabled: false
-    # PGDATA is <mountPath>/pgdata, so pg_basebackup gets an empty folder (EBS has lost+found)
-    mountPath: /var/lib/postgresql/data
-    staticHostPath: false
-    localVolumeHostPath: /mnt/db-replica-data
-    localVolumeSize: 10Gi
-    # AWS: static EBS volume, or a dynamic one (size, storageClassName) when volumeID is empty
-    AWS_ElasticBlockStore_volumeID: ""
-    AWS_ElasticBlockStore_size: 50Gi
-    size: 50Gi
-    storageClassName: ""
-  resources: {}
-  nodeSelector: {}
-  sharedMemorySize: 64Mi
-  nodeAffinity:
-    enabled: false
-    key: "nodegroup_type"
-    values: ["database"]
-  # Never schedule on the web-db node. On a single node cluster the replica stays Pending
-  podAntiAffinity:
-    enabled: true
 # ====================================================================================================
 # web-api: OSM website + API (openstreetmap-website, Rails)
 # ====================================================================================================

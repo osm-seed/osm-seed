@@ -1,6 +1,6 @@
 {{- if .Values.webDb.enabled -}}
-{{- if and (or .Values.webDb.pgbackrest.enabled .Values.webDbReplica.enabled) (not .Values.webDb.postgresqlConfig.enabled) }}
-{{- fail "webDb.pgbackrest and webDbReplica require webDb.postgresqlConfig.enabled" }}
+{{- if and .Values.webDb.pgbackrest.enabled (not .Values.webDb.postgresqlConfig.enabled) }}
+{{- fail "webDb.pgbackrest requires webDb.postgresqlConfig.enabled" }}
 {{- end }}
 {{- if .Values.webDb.postgresqlConfig.enabled -}}
 apiVersion: v1
@@ -17,23 +17,7 @@ data:
     # WAL archiving to S3 (webDb.pgbackrest)
     archive_mode = on
     archive_command = 'pgbackrest --stanza=main archive-push %p'
+    archive_timeout = {{ .Values.webDb.pgbackrest.archiveTimeout }}
     {{- end }}
-    {{- if .Values.webDbReplica.enabled }}
-    # Streaming replication (webDbReplica)
-    hba_file = '/etc/postgresql/pg_hba.conf'
-    wal_keep_size = {{ .Values.webDbReplica.walKeepSize }}
-    hot_standby = on
-    hot_standby_feedback = on
-    {{- end }}
-  {{- if .Values.webDbReplica.enabled }}
-  pg_hba.conf: |
-    local   all          all                 trust
-    host    all          all   127.0.0.1/32  trust
-    host    all          all   ::1/128       trust
-    local   replication  all                 trust
-    host    replication  all   127.0.0.1/32  trust
-    host    replication  all   all           md5
-    host    all          all   all           md5
-  {{- end }}
 {{- end }}
 {{- end }}
