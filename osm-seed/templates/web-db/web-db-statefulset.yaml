@@ -24,6 +24,7 @@ spec:
         run: {{ .Release.Name }}-web-db
     spec:
       priorityClassName: {{ .Release.Name }}-{{ .Values.webDb.priorityClass | default "high-priority" }}
+      {{- include "osm-seed.serviceAccount" .Values.webDb | nindent 6 }}
       containers:
         - name: {{ .Chart.Name }}-web-db
           image: "{{ .Values.webDb.image.name }}:{{ .Values.webDb.image.tag }}"
@@ -84,7 +85,46 @@ spec:
             - name: db-postgresql-config
               mountPath: /etc/postgresql/
             {{- end }}
+            {{- if .Values.webDb.pgbackrest.enabled }}
+            - name: pgbackrest-config
+              mountPath: /etc/pgbackrest
+            - name: postgres-socket
+              mountPath: /var/run/postgresql
+            {{- end }}
           {{- include "osm-seed.resources" .Values.webDb | nindent 10 }}
+        {{- if .Values.webDb.pgbackrest.enabled }}
+        # pgBackRest: creates the stanza, then checks every hour and takes a base backup when the
+        # last one is older than backupIntervalHours. It shares PGDATA and the unix socket with postgres.
+        # It never exits, so a bad S3 config doesn't make web-db NotReady.
+        - name: {{ .Chart.Name }}-web-db-pgbackrest
+          image: "{{ .Values.webDb.image.name }}:{{ .Values.webDb.image.tag }}"
+          command:
+            - "su"
+            - "postgres"
+            - "-c"
+            - |
+              until pg_isready -q; do sleep 10; done
+              until pgbackrest --stanza=main stanza-create; do
+                echo "stanza-create failed, check webDb.pgbackrest S3 settings. Retrying in 5m"
+                sleep 300
+              done
+              while true; do
+                last=$(pgbackrest --stanza=main info --output=json | grep -o '"stop":[0-9][0-9]*' | tail -1 | cut -d: -f2)
+                if [ -z "$last" ] || [ $(( $(date +%s) - last )) -ge {{ mul .Values.webDb.pgbackrest.backupIntervalHours 3600 }} ]; then
+                  if [ "$(date +%-d)" -lt 8 ]; then type=full; else type=diff; fi
+                  pgbackrest --stanza=main backup --type=$type
+                fi
+                sleep 3600
+              done
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: {{ .Values.webDb.persistenceDisk.mountPath }}
+            - name: pgbackrest-config
+              mountPath: /etc/pgbackrest
+            - name: postgres-socket
+              mountPath: /var/run/postgresql
+          {{- include "osm-seed.resources" .Values.webDb.pgbackrest | nindent 10 }}
+        {{- end }}
       volumes:
         - name: postgres-storage
         {{- if .Values.webDb.persistenceDisk.enabled }}
@@ -101,6 +141,13 @@ spec:
         - name: db-postgresql-config
           configMap:
             name: {{ .Release.Name }}-web-db-postgresql-config
+        {{- end }}
+        {{- if .Values.webDb.pgbackrest.enabled }}
+        - name: pgbackrest-config
+          secret:
+            secretName: {{ .Release.Name }}-web-db-pgbackrest
+        - name: postgres-socket
+          emptyDir: {}
         {{- end }}
       {{- include "osm-seed.nodeSelector" .Values.webDb | nindent 6 }}
       {{- include "osm-seed.nodeAffinity" .Values.webDb | nindent 6 }}

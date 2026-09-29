@@ -1,0 +1,30 @@
+{{- if and .Values.webDbReplica.enabled .Values.webDbReplica.persistenceDisk.enabled }}
+{{- $pd := dict "root" . "values" .Values.webDbReplica "name" (printf "%s-web-db-replica-data" .Release.Name) }}
+{{- if include "osm-seed.pv.static" $pd }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-web-db-replica-data
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: web-db-replica
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  {{- include "osm-seed.pv.spec" $pd | nindent 2 }}
+---
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-web-db-replica-data
+  annotations:
+    "helm.sh/resource-policy": keep
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: web-db-replica
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  {{- include "osm-seed.pvc.spec" $pd | nindent 2 }}
+{{- end }}

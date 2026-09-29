@@ -1,3 +1,8 @@
+### Unreleased
+
+- Add `webDb.pgbackrest`: WAL archiving and weekly base backups of web-db to S3 with pgBackRest, the same setup OSMF uses. The `db` image now includes pgBackRest.
+- Add `webDbReplica`: a streaming replica of web-db on another node. It is built with `pg_basebackup` on first start and can get missing WAL from the pgBackRest repo.
+
 ### v2.0.0
 
 Breaking changes. Upgrading in place from an older release is not supported. Install a new release and migrate data.

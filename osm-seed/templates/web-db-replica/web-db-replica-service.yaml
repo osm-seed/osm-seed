@@ -1,0 +1,21 @@
+{{- if .Values.webDbReplica.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-web-db-replica
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: web-db-replica
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+      # protocol: TCP
+      # name: http
+  selector:
+    app: {{ template "osm-seed.name" . }}
+    release: {{ .Release.Name }}
+    run: {{ .Release.Name }}-web-db-replica
+{{- end }}
