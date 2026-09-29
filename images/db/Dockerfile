@@ -30,9 +30,10 @@ RUN git clone https://github.com/openstreetmap/osmdbt.git /tmp/osmdbt && \
 FROM postgres:17
 
 # pgBackRest: WAL archiving and base backups to S3 (webDb.pgbackrest)
+ARG PGBACKREST_VERSION=2.59.1
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
-    pgbackrest \
+    "pgbackrest=${PGBACKREST_VERSION}-*" \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /tmp/osmdbt/postgresql-plugin/build/osm-logical.so /usr/lib/postgresql/17/lib/osm-logical.so
