@@ -92,7 +92,8 @@ webDb:
     s3Endpoint: s3.amazonaws.com
     # Folder inside the bucket
     s3Path: /web-db
-    # "shared" = static keys below, "web-id" = IRSA on EKS (set serviceAccount, leave keys empty)
+    # "shared" = static keys below, "auto" = node IAM role (EC2/EKS),
+    # "web-id" = IRSA on EKS (set serviceAccount). Leave the keys empty for auto and web-id
     s3KeyType: shared
     s3Key: ""
     s3KeySecret: ""
