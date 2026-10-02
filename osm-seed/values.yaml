@@ -40,6 +40,7 @@ webDb:
     mountPath: /var/lib/postgresql/data
     subPath: postgresql-db
     # k3s: staticHostPath=true uses a fixed hostPath dir (reusable across releases); false = dynamic local-path
+    # Only one release can use the folder. To free it, on the node: rm <localVolumeHostPath>/.owner
     staticHostPath: false
     localVolumeHostPath: /mnt/db-data
     localVolumeSize: 10Gi

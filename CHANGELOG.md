@@ -1,5 +1,6 @@
 ### Unreleased
 
+- k3s `staticHostPath`: only one release can use a folder. To free it, delete `<localVolumeHostPath>/.owner` on the node.
 - Add `webDb.pgbackrest`: WAL archiving and daily base backups of web-db to S3 with pgBackRest, the same setup OSMF uses. With `archive_timeout` the max data loss is about one minute. The `db` image now includes pgBackRest.
 
 ### v2.0.0
