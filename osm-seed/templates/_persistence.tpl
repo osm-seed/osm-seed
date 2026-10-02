@@ -66,3 +66,42 @@ resources:
     storage: {{ $p.size }}
     {{- end }}
 {{- end -}}
+
+{{/*
+Owner check for a static hostPath folder (cloudProvider k3s, staticHostPath).
+Two databases on one folder corrupt it, and Postgres' own postmaster.pid lock
+does not catch it across containers: each has its own PIDs, so the second one
+takes the lock for stale. This init container writes <folder>/.owner with
+<namespace>/<release>/<component> and refuses to start if another owner is
+already there. A restart of the same component passes.
+
+To hand a folder to another stack on purpose, delete <folder>/.owner on the node.
+
+Renders init container list items, or nothing when the check does not apply.
+Takes (dict "root" . "values" .Values.<component> "component" "<name>" "volume" "<volume name>").
+*/}}
+{{- define "osm-seed.volume.owner" -}}
+{{- $p := .values.persistenceDisk -}}
+{{- if and $p.enabled (eq .root.Values.cloudProvider "k3s") $p.staticHostPath }}
+- name: volume-owner
+  image: busybox:1.36
+  securityContext:
+    runAsUser: 0
+  command: ["sh", "-c"]
+  args:
+    - |
+      me="{{ .root.Release.Namespace }}/{{ .root.Release.Name }}/{{ .component }}"
+      f=/volume/.owner
+      if [ -f "$f" ] && [ "$(cat "$f")" != "$me" ]; then
+        echo "error: {{ $p.localVolumeHostPath }} belongs to $(cat "$f"), not $me." >&2
+        echo "       Two databases on one folder corrupt it. Use another localVolumeHostPath," >&2
+        echo "       or, if the other one is gone for good, delete {{ $p.localVolumeHostPath }}/.owner on the node." >&2
+        exit 1
+      fi
+      echo "$me" > "$f"
+      echo "==> {{ $p.localVolumeHostPath }} belongs to $me"
+  volumeMounts:
+    - name: {{ .volume }}
+      mountPath: /volume
+{{- end }}
+{{- end -}}

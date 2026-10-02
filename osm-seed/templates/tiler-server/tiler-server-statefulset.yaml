@@ -26,6 +26,10 @@ spec:
     spec:
       priorityClassName: {{ .Release.Name }}-{{ .Values.tilerServer.priorityClass | default "medium-priority" }}
       {{- include "osm-seed.serviceAccount" .Values.tilerServer | nindent 6 }}
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.tilerServer "component" "tiler-server" "volume" "tiler-server-storage") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-tiler-server
           image: "{{ .Values.tilerServer.image.name }}:{{ .Values.tilerServer.image.tag }}"

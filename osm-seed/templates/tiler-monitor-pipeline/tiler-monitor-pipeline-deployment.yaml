@@ -21,6 +21,10 @@ spec:
         release: {{ .Release.Name }}
         run: {{ .Release.Name }}-tiler-monitor-pipeline
     spec:
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.tilerMonitorPipeline "component" "tiler-monitor-pipeline" "volume" "monitor-storage") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-tiler-monitor-pipeline
           image: "{{ .Values.tilerMonitorPipeline.image.name }}:{{ .Values.tilerMonitorPipeline.image.tag }}"

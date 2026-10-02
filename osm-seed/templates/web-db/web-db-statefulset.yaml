@@ -25,6 +25,10 @@ spec:
     spec:
       priorityClassName: {{ .Release.Name }}-{{ .Values.webDb.priorityClass | default "high-priority" }}
       {{- include "osm-seed.serviceAccount" .Values.webDb | nindent 6 }}
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.webDb "component" "web-db" "volume" "postgres-storage") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-web-db
           image: "{{ .Values.webDb.image.name }}:{{ .Values.webDb.image.tag }}"

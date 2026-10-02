@@ -24,6 +24,10 @@ spec:
         run: {{ .Release.Name }}-tiler-db
     spec:
       priorityClassName: {{ .Release.Name }}-{{ .Values.tilerDb.priorityClass | default "medium-priority" }}
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.tilerDb "component" "tiler-db" "volume" "postgres-storage") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-tiler-db
           image: "{{ .Values.tilerDb.image.name }}:{{ .Values.tilerDb.image.tag }}"

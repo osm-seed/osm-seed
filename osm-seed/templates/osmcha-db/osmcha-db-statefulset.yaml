@@ -31,6 +31,7 @@ spec:
           volumeMounts:
           - name: postgres-storage
             mountPath: /var/lib/postgresql/data
+        {{- include "osm-seed.volume.owner" (dict "root" . "values" .Values.osmchaDb "component" "osmcha-db" "volume" "postgres-storage") | nindent 8 }}
       priorityClassName: {{ .Release.Name }}-{{ .Values.osmchaDb.priorityClass | default "medium-priority" }}
       containers:
         - name: {{ .Chart.Name }}-osmcha-db

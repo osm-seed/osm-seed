@@ -21,6 +21,10 @@ spec:
     spec:
       {{- include "osm-seed.serviceAccount" .Values.tilerImposm | nindent 6 }}
       priorityClassName: {{ .Release.Name }}-{{ .Values.tilerImposm.priorityClass | default "medium-priority" }}
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.tilerImposm "component" "tiler-imposm" "volume" "tiler-imposm-storage") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ .Release.Name }}-tiler-imposm
         image: "{{ .Values.tilerImposm.image.name }}:{{ .Values.tilerImposm.image.tag }}"

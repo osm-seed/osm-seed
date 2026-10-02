@@ -24,6 +24,10 @@ spec:
         run: {{ .Release.Name }}-overpass-api
     spec:
       priorityClassName: {{ .Release.Name }}-{{ .Values.overpassApi.priorityClass | default "medium-priority" }}
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.overpassApi "component" "overpass-api" "volume" "overpass-api-storage") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-overpass-api
           image: "{{ .Values.overpassApi.image.name }}:{{ .Values.overpassApi.image.tag }}"

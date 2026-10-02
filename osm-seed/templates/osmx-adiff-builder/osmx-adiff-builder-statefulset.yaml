@@ -24,6 +24,10 @@ spec:
         run: {{ .Release.Name }}-osmx-adiff-builder
     spec:
       {{- include "osm-seed.serviceAccount" .Values.osmxAdiffBuilder | nindent 6 }}
+      {{- with include "osm-seed.volume.owner" (dict "root" . "values" .Values.osmxAdiffBuilder "component" "osmx-adiff-builder" "volume" "osmx-db") }}
+      initContainers:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: osmx-adiff-builder
           image: "{{ .Values.osmxAdiffBuilder.image.name }}:{{ .Values.osmxAdiffBuilder.image.tag }}"
