@@ -36,30 +36,6 @@ spec:
                 value: {{ quote $.Values.webDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ $.Values.webDb.env.POSTGRES_USER }}
-              # DB action: backup/restore
-              - name: DB_ACTION
-                value: {{quote $job.env.DB_ACTION }}
-              # Backup naming 
-              - name: SET_DATE_AT_NAME
-                value: {{quote $job.env.SET_DATE_AT_NAME }}
-              - name: BACKUP_CLOUD_FOLDER
-                value: {{ $job.env.BACKUP_CLOUD_FOLDER }}
-              - name: BACKUP_CLOUD_FILE
-                value: {{ $job.env.BACKUP_CLOUD_FILE }}
-              - name: AWS_S3_BUCKET
-                value: {{ $job.env.AWS_S3_BUCKET }}
-              # Minute replication stream. The backup reads its state.txt to store
-              # the seqno next to the dump, so planet dumps know their position.
-              - name: MINUTE_REPLICATION_URL
-                value: {{ $job.env.MINUTE_REPLICATION_URL }}
-              # Clean up options
-              - name: CLEANUP_BACKUPS
-                value: {{ quote $job.env.CLEANUP_BACKUPS }}
-              - name: RETENTION_DAYS
-                value: {{ quote $job.env.RETENTION_DAYS }}
-              # In case DB_ACTION=restore, and the backup url
-              - name: RESTORE_URL_FILE
-                value: {{ $job.env.RESTORE_URL_FILE}}
             {{- end }}
             # Env vars for osmcha database
             {{ if eq $job.name "tm-db" }}
@@ -72,26 +48,6 @@ spec:
                 value: {{ quote $.Values.tmDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ $.Values.tmDb.env.POSTGRES_USER }}
-              # DB action: backup/restore
-              - name: DB_ACTION
-                value: {{ quote $job.env.DB_ACTION }}
-              # Backup naming
-              - name: SET_DATE_AT_NAME
-                value: {{quote $job.env.SET_DATE_AT_NAME }}
-              - name: BACKUP_CLOUD_FOLDER
-                value: {{ $job.env.BACKUP_CLOUD_FOLDER }}
-              - name: BACKUP_CLOUD_FILE
-                value: {{ $job.env.BACKUP_CLOUD_FILE }}
-              - name: AWS_S3_BUCKET
-                value: {{ $job.env.AWS_S3_BUCKET }}
-              # Clean up options
-              - name: CLEANUP_BACKUPS
-                value: {{ quote $job.env.CLEANUP_BACKUPS }}
-              - name: RETENTION_DAYS
-                value: {{ quote $job.env.RETENTION_DAYS }}
-              # In case DB_ACTION=restore, and the backup url
-              - name: RESTORE_URL_FILE
-                value: {{ $job.env.RESTORE_URL_FILE}}
             {{- end }}
             # Env vars for osmcha database
             {{ if eq $job.name "osmcha-db" }}
@@ -104,31 +60,9 @@ spec:
                 value: {{ quote $.Values.osmchaDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ $.Values.osmchaDb.env.POSTGRES_USER }}
-              # DB action: backup/restore
-              - name: DB_ACTION
-                value: {{ quote $job.env.DB_ACTION }}
-              # Backup naming
-              - name: SET_DATE_AT_NAME
-                value: {{quote $job.env.SET_DATE_AT_NAME }}
-              - name: BACKUP_CLOUD_FOLDER
-                value: {{ $job.env.BACKUP_CLOUD_FOLDER }}
-              - name: BACKUP_CLOUD_FILE
-                value: {{ $job.env.BACKUP_CLOUD_FILE }}
-              - name: AWS_S3_BUCKET
-                value: {{ $job.env.AWS_S3_BUCKET }}
-              # Clean up options
-              - name: CLEANUP_BACKUPS
-                value: {{ quote $job.env.CLEANUP_BACKUPS }}
-              - name: RETENTION_DAYS
-                value: {{ quote $job.env.RETENTION_DAYS }}
-              # In case DB_ACTION=restore, and the backup url
-              - name: RESTORE_URL_FILE
-                value: {{ $job.env.RESTORE_URL_FILE}}
             {{- end }}
-              # Cloud provider
-              - name: CLOUDPROVIDER
-                value: {{ include "osm-seed.uploadProvider" $ }}
-              {{- include "osm-seed.awsCredentialsEnv" $ | nindent 14 }}
+              # DB_ACTION, backup naming, cleanup, bucket, CLOUDPROVIDER, AWS keys: from the job env
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" $job.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER")) | nindent 14 }}
             # Node selector
             {{- include "osm-seed.resources" $job | nindent 12 }}
           restartPolicy: OnFailure

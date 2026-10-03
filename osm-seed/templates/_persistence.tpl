@@ -2,10 +2,10 @@
 Persistent storage helpers. Each component template keeps its own PersistentVolume and
 PersistentVolumeClaim objects (name, labels) and uses these helpers for the spec.
 
-  cloudProvider aws
+  storageProvider aws
     AWS_ElasticBlockStore_volumeID set  -> static PV on that EBS volume, PVC bound to it
     volumeID empty                      -> dynamic PVC (storageClassName, size)
-  cloudProvider k3s
+  storageProvider k3s
     staticHostPath true                 -> static hostPath PV (localVolumeHostPath), PVC bound to it
     staticHostPath false                -> dynamic PVC on local-path (localVolumeSize)
 
@@ -15,7 +15,7 @@ All helpers take (dict "root" . "values" .Values.<component> "name" "<pv/pvc nam
 {{/* "true" when the component needs a static PersistentVolume, empty otherwise. */}}
 {{- define "osm-seed.pv.static" -}}
 {{- $p := .values.persistenceDisk -}}
-{{- $cp := .root.Values.cloudProvider -}}
+{{- $cp := include "osm-seed.storageProvider" .root -}}
 {{- if or (and (eq $cp "k3s") $p.staticHostPath) (and (eq $cp "aws") $p.AWS_ElasticBlockStore_volumeID) }}true{{- end -}}
 {{- end -}}
 
@@ -25,7 +25,7 @@ All helpers take (dict "root" . "values" .Values.<component> "name" "<pv/pvc nam
 storageClassName: ""
 accessModes:
   - ReadWriteOnce
-{{- if eq .root.Values.cloudProvider "aws" }}
+{{- if eq (include "osm-seed.storageProvider" .root) "aws" }}
 capacity:
   storage: {{ $p.AWS_ElasticBlockStore_size }}
 awsElasticBlockStore:
@@ -44,7 +44,7 @@ hostPath:
 {{/* spec of the PersistentVolumeClaim, bound to the static PV when there is one. */}}
 {{- define "osm-seed.pvc.spec" -}}
 {{- $p := .values.persistenceDisk -}}
-{{- $k3s := eq .root.Values.cloudProvider "k3s" -}}
+{{- $k3s := eq (include "osm-seed.storageProvider" .root) "k3s" -}}
 {{- $static := include "osm-seed.pv.static" . -}}
 {{- if $static }}
 storageClassName: ""
@@ -68,7 +68,7 @@ resources:
 {{- end -}}
 
 {{/*
-Owner check for a static hostPath folder (cloudProvider k3s, staticHostPath).
+Owner check for a static hostPath folder (storageProvider k3s, staticHostPath).
 Two databases on one folder corrupt it, and Postgres' own postmaster.pid lock
 does not catch it across containers: each has its own PIDs, so the second one
 takes the lock for stale. This init container writes <folder>/.owner with
@@ -82,7 +82,7 @@ Takes (dict "root" . "values" .Values.<component> "component" "<name>" "volume" 
 */}}
 {{- define "osm-seed.volume.owner" -}}
 {{- $p := .values.persistenceDisk -}}
-{{- if and $p.enabled (eq .root.Values.cloudProvider "k3s") $p.staticHostPath }}
+{{- if and $p.enabled (eq (include "osm-seed.storageProvider" .root) "k3s") $p.staticHostPath }}
 - name: volume-owner
   image: busybox:1.36
   securityContext:

@@ -22,7 +22,7 @@ helm install osm osm-seed/osm-seed -f myvalues.yaml
 Minimal `myvalues.yaml` to run the website and API with a database:
 
 ```yaml
-cloudProvider: k3s   # aws or k3s
+storageProvider: k3s   # aws or k3s
 
 webDb:
   enabled: true
@@ -95,16 +95,30 @@ Each component has the same shape in `values.yaml`: `enabled`, `image`, `env`,
 `ingress`, `serviceAccount`, `autoscaling`, `schedule`. See
 [values.yaml](values.yaml) for every key and its default.
 
-## Cloud provider and storage
+## Storage and uploads
 
-`cloudProvider` is `aws` or `k3s`.
+`storageProvider` is `aws` or `k3s`. It only picks where the disks live. The old
+name `cloudProvider` still works.
 
 - `aws`: persistent components use a static EBS volume. Set
   `persistenceDisk.AWS_ElasticBlockStore_volumeID` and `AWS_ElasticBlockStore_size`.
-  Jobs upload to `AWS_S3_BUCKET`.
 - `k3s`: with `persistenceDisk.staticHostPath: true` the chart creates a hostPath PV at
   `localVolumeHostPath` (data survives reinstalls). With `false` it uses the `local-path`
   storage class (dynamic, data is tied to the PVC).
+
+Jobs (dumps, replication, metrics, backups) get their whole `env` as is. Set where
+they upload there:
+
+```yaml
+planetDump:
+  env:
+    CLOUDPROVIDER: aws
+    AWS_S3_BUCKET: s3://my-bucket
+    AWS_ACCESS_KEY_ID: ...        # on k3s; on EKS use serviceAccount (IRSA)
+    AWS_SECRET_ACCESS_KEY: ...
+```
+
+There is no global bucket. Without `CLOUDPROVIDER` in its env, a job uses `storageProvider`.
 
 PVCs are kept on `helm uninstall` (`helm.sh/resource-policy: keep`). Delete them by hand.
 

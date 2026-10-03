@@ -1,6 +1,8 @@
 ### Unreleased
 
-- Add `awsCredentials` for clusters with no IRSA (k3s). When set, the dump, replication, metrics and backup jobs get the keys from the Secret `<release>-aws-credentials` and upload to S3 (`CLOUDPROVIDER=aws`), even with `cloudProvider: k3s`. Empty by default: nothing changes on EKS.
+- Rename `cloudProvider` to `storageProvider`: it only picks where the disks live (aws: EBS, k3s: folders on the node). The old name still works.
+- Dump, replication, metrics and backup jobs now pass their whole `env` as is, including `CLOUDPROVIDER`, `AWS_S3_BUCKET` and AWS keys. This lets them upload from a cluster with no IRSA (k3s).
+- Breaking: the global `AWS_S3_BUCKET` is removed. Set `AWS_S3_BUCKET` in the `env` of each job (and `tilerServer.env`). `CLOUDPROVIDER` still defaults to `storageProvider`.
 - `webApi.podAntiAffinity` is now preferred, not required. With a single web node, a rollout no longer gets stuck with the new pod `Pending`.
 - k3s `staticHostPath`: only one release can use a folder. To free it, delete `<localVolumeHostPath>/.owner` on the node.
 - Add `webDb.pgbackrest`: WAL archiving and daily base backups of web-db to S3 with pgBackRest, the same setup OSMF uses. With `archive_timeout` the max data loss is about one minute. The `db` image now includes pgBackRest.

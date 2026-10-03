@@ -1,16 +1,9 @@
 environment: development
 
-# Where to deploy: aws or k3s. Templates still carry gcp/azure blocks but they are not supported.
-cloudProvider: aws
-# Cloud storage bucket for the provider set above
-AWS_S3_BUCKET: s3://osm-seed
-# Static AWS keys, for clusters with no IRSA (k3s). When set, they are stored in
-# the Secret <release>-aws-credentials, and the dump, replication and backup jobs
-# use them to upload to S3 (CLOUDPROVIDER=aws), whatever cloudProvider says.
-# Leave empty on EKS, where jobs use their serviceAccount.
-awsCredentials:
-  accessKeyId: ""
-  secretAccessKey: ""
+# Where the disks live: aws (EBS volumes) or k3s (folders on the node).
+# The old name cloudProvider still works, and wins when set.
+storageProvider: aws
+# Jobs take CLOUDPROVIDER, AWS_S3_BUCKET and AWS keys from their own env.
 
 # Service type: NodePort, ClusterIP or LoadBalancer. ClusterIP is recommended;
 serviceType: ClusterIP
@@ -252,6 +245,7 @@ fullHistory:
     name: ""
   schedule: "* * * * *"
   env:
+    AWS_S3_BUCKET: ""
     OVERWRITE_FHISTORY_FILE: false
     PLANET_EXPORT_METHOD: planet-dump-ng
     DUMP_CLOUD_URL: s3://osm-seed/db.dump
@@ -277,6 +271,7 @@ changesetsDump:
     name: ""
   schedule: "* * * * *"
   env:
+    AWS_S3_BUCKET: ""
     OVERWRITE_CHANGESETS_FILE: false
     DUMP_CLOUD_URL: s3://osm-seed/db.dump
     PLANET_EPOCH_DATE: '1970-01-01'
@@ -377,6 +372,7 @@ planetDump:
   priorityClass: "medium-priority"
   schedule: "* * * * *"
   env:
+    AWS_S3_BUCKET: ""
     OVERWRITE_PLANET_FILE: false
     DUMP_CLOUD_URL: s3://osm-seed/db.dump
     PLANET_EXPORT_METHOD: planet-dump-ng
@@ -401,6 +397,7 @@ replicationJob:
     name: ""
   priorityClass: "medium-priority"
   env:
+    AWS_S3_BUCKET: ""
     ENABLE_SEND_SLACK_MESSAGE: "false"
     SLACK_WEBHOOK_URL: "null"
   resources: {}
@@ -439,6 +436,7 @@ osmProcessor:
     tag: ""
   priorityClass: "medium-priority"
   env:
+    AWS_S3_BUCKET: ""
     URL_FILE_TO_PROCESS: "http://download.geofabrik.de/europe/monaco-latest.osm.pbf"
     OSM_FILE_ACTION: simple_pbf
   resources: {}
@@ -575,6 +573,7 @@ tilerServer:
       enabled: false
       secretName: ""
   env:
+    AWS_S3_BUCKET: ""
     TILER_SERVER_PORT: 9090
     # s3 renders a Deployment (stateless); file renders a StatefulSet with persistenceDisk
     TILER_CACHE_TYPE: s3
@@ -730,6 +729,7 @@ planetStats:
   priorityClass: "medium-priority"
   schedule: "0 4 * * *"
   env:
+    AWS_S3_BUCKET: ""
     PUBLISH_TARGET: "s3"
     DASHBOARD_DIR: "/mnt/planet-stats"
     PLANET_STATS_STATE_S3_URI: ""
@@ -1136,6 +1136,8 @@ taginfoDataProcessor:
 # ====================================================================================================
 osmSimpleMetrics:
   enabled: false
+  env:
+    AWS_S3_BUCKET: ""
   image:
     name: ""
     tag: ""
@@ -1164,6 +1166,7 @@ monitoringReplication:
     name: ""
   schedule: "* */1 * * *"
   env:
+    AWS_S3_BUCKET: ""
     CREATE_MISSING_FILES: empty
     REPLICATION_SEQUENCE_NUMBER: "109789"
   resources: {}
@@ -1177,6 +1180,8 @@ monitoringReplication:
 # ====================================================================================================
 changesetReplicationJob:
   enabled: false
+  env:
+    AWS_S3_BUCKET: ""
   image:
     name: ""
     tag: ""

@@ -61,9 +61,10 @@ Usage: {{- include "osm-seed.affinity" (dict "root" . "values" .Values.webApi "c
 {{- define "osm-seed.affinity" -}}
 {{- $v := .values -}}
 {{- $anti := and $v.podAntiAffinity $v.podAntiAffinity.enabled -}}
-{{- if or $v.nodeAffinity.enabled $anti }}
+{{- $node := and $v.nodeAffinity $v.nodeAffinity.enabled -}}
+{{- if or $node $anti }}
 affinity:
-  {{- if $v.nodeAffinity.enabled }}
+  {{- if $node }}
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
@@ -111,43 +112,29 @@ automountServiceAccountToken: true
 {{- end -}}
 
 {{/*
-Env vars that tell jobs where to upload files, per cloudProvider.
-Usage: {{- include "osm-seed.cloudEnv" . | nindent 12 }}
+Where the disks live: aws (EBS) or k3s (folders on the node).
+storageProvider, or its old name cloudProvider, which still wins when set.
+Usage: {{ include "osm-seed.storageProvider" . }}
 */}}
-{{- define "osm-seed.cloudEnv" -}}
-{{- if eq (include "osm-seed.uploadProvider" .) "aws" }}
-- name: AWS_S3_BUCKET
-  value: {{ .Values.AWS_S3_BUCKET }}
+{{- define "osm-seed.storageProvider" -}}
+{{- .Values.cloudProvider | default .Values.storageProvider | default "aws" -}}
+{{- end -}}
+
+{{/*
+Env of a job: everything in its values env, as is, including CLOUDPROVIDER,
+AWS_S3_BUCKET and AWS keys. CLOUDPROVIDER defaults to the storage provider.
+skip: names the template sets itself.
+Usage: {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetDump.env "skip" (list "POSTGRES_HOST")) | nindent 14 }}
+*/}}
+{{- define "osm-seed.jobEnv" -}}
+{{- $env := .env | default dict -}}
+- name: CLOUDPROVIDER
+  value: {{ $env.CLOUDPROVIDER | default (include "osm-seed.storageProvider" .root) | quote }}
+{{- $skip := concat (list "CLOUDPROVIDER") (.skip | default list) }}
+{{- range $k, $v := $env }}
+{{- if not (has $k $skip) }}
+- name: {{ $k }}
+  value: {{ $v | quote }}
 {{- end }}
-{{- include "osm-seed.awsCredentialsEnv" . }}
-{{- end -}}
-
-{{/*
-Where jobs upload files, for their CLOUDPROVIDER env. Static AWS keys
-(awsCredentials) mean S3, whatever cloudProvider says: on k3s, cloudProvider
-only picks the storage.
-Usage: value: {{ include "osm-seed.uploadProvider" $ }}
-*/}}
-{{- define "osm-seed.uploadProvider" -}}
-{{- if .Values.awsCredentials.accessKeyId -}}aws{{- else -}}{{ .Values.cloudProvider }}{{- end -}}
-{{- end -}}
-
-{{/*
-AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from <release>-aws-credentials,
-when awsCredentials is set. Nothing on EKS (IRSA).
-Usage: {{- include "osm-seed.awsCredentialsEnv" $ | nindent 14 }}
-*/}}
-{{- define "osm-seed.awsCredentialsEnv" -}}
-{{- if .Values.awsCredentials.accessKeyId }}
-- name: AWS_ACCESS_KEY_ID
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Release.Name }}-aws-credentials
-      key: AWS_ACCESS_KEY_ID
-- name: AWS_SECRET_ACCESS_KEY
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Release.Name }}-aws-credentials
-      key: AWS_SECRET_ACCESS_KEY
 {{- end }}
 {{- end -}}

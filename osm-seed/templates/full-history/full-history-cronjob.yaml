@@ -34,19 +34,7 @@ spec:
                 value: {{ quote .Values.webDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
-              - name: OVERWRITE_FHISTORY_FILE
-                value: {{ .Values.fullHistory.env.OVERWRITE_FHISTORY_FILE | quote}}
-              - name: CLOUDPROVIDER
-                value: {{ include "osm-seed.uploadProvider" . }}
-              - name: PLANET_EXPORT_METHOD
-                value: {{ .Values.fullHistory.env.PLANET_EXPORT_METHOD | quote}}
-              - name: DUMP_CLOUD_URL
-                value: {{ .Values.fullHistory.env.DUMP_CLOUD_URL | quote}}
-              - name: PLANET_EPOCH_DATE
-                value: {{ .Values.fullHistory.env.PLANET_EPOCH_DATE | quote}}
-              - name: PLANET_DUMP_NG_METADATA_URL
-                value: {{ .Values.fullHistory.env.PLANET_DUMP_NG_METADATA_URL | quote}}
-              {{- include "osm-seed.cloudEnv" . | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.fullHistory.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER" "MEMORY_JAVACMD_OPTIONS")) | nindent 14 }}
               # Memory optimization for osmosis
               {{- if .Values.fullHistory.resources.requests }}   
               - name: MEMORY_JAVACMD_OPTIONS

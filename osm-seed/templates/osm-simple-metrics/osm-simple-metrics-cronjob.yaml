@@ -33,9 +33,7 @@ spec:
                 value: {{ quote .Values.webDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
-              - name: CLOUDPROVIDER
-                value: {{ include "osm-seed.uploadProvider" . }}
-              {{- include "osm-seed.cloudEnv" . | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.osmSimpleMetrics.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER")) | nindent 14 }}
           restartPolicy: OnFailure
           {{- include "osm-seed.nodeSelector" .Values.osmSimpleMetrics | nindent 10 }}
           {{- include "osm-seed.nodeAffinity" .Values.osmSimpleMetrics | nindent 10 }}

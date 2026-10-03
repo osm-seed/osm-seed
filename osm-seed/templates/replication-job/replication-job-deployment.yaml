@@ -52,18 +52,12 @@ spec:
               value: {{ .Values.webDb.env.POSTGRES_PORT | quote}}
             - name: REPLICATION_FOLDER
               value: replication/minute
-            - name: CLOUDPROVIDER
-              value: {{ include "osm-seed.uploadProvider" . }}
-            {{- include "osm-seed.cloudEnv" . | nindent 12 }}
+            {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.replicationJob.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER" "POSTGRES_PORT" "REPLICATION_FOLDER" "MEMORY_JAVACMD_OPTIONS" "ENVIRONMENT")) | nindent 12 }}
               # Memory optimization for osmosis
             {{- if .Values.replicationJob.resources.requests }}
             - name: MEMORY_JAVACMD_OPTIONS
               value: {{ .Values.replicationJob.resources.requests.memory | default "2Gi" | quote}}
             {{- end }}
-            - name: ENABLE_SEND_SLACK_MESSAGE
-              value: {{ .Values.replicationJob.env.ENABLE_SEND_SLACK_MESSAGE | quote}}
-            - name: SLACK_WEBHOOK_URL
-              value: {{ .Values.replicationJob.env.SLACK_WEBHOOK_URL | quote}}
             - name: ENVIRONMENT
               value: {{ .Values.environment | quote}}
       {{- include "osm-seed.nodeSelector" .Values.replicationJob | nindent 6 }}

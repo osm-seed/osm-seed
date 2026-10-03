@@ -34,15 +34,9 @@ spec:
                 value: {{ quote .Values.webDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
-              - name: CLOUDPROVIDER
-                value: {{ include "osm-seed.uploadProvider" . }}
               - name: REPLICATION_FOLDER
                 value: replication/minute
-              - name: CREATE_MISSING_FILES
-                value: {{ .Values.monitoringReplication.env.CREATE_MISSING_FILES }}
-              - name: REPLICATION_SEQUENCE_NUMBER
-                value: {{ .Values.monitoringReplication.env.REPLICATION_SEQUENCE_NUMBER | quote}}
-              {{- include "osm-seed.cloudEnv" . | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.monitoringReplication.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER" "REPLICATION_FOLDER" "MEMORY_JAVACMD_OPTIONS")) | nindent 14 }}
               # Memory optimization for osmosis
               {{- if .Values.monitoringReplication.resources.requests }}   
               - name: MEMORY_JAVACMD_OPTIONS

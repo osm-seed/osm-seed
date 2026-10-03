@@ -39,9 +39,7 @@ spec:
               value: {{ .Values.webDb.env.POSTGRES_USER }}
             - name: REPLICATION_FOLDER
               value: replication/minute
-            - name: CLOUDPROVIDER
-              value: {{ include "osm-seed.uploadProvider" . }}
-            {{- include "osm-seed.cloudEnv" . | nindent 12 }}
+            {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.changesetReplicationJob.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER" "REPLICATION_FOLDER" "MEMORY_JAVACMD_OPTIONS")) | nindent 12 }}
               # Memory optimization for osmosis
             {{- if .Values.changesetReplicationJob.resources.requests }}
             - name: MEMORY_JAVACMD_OPTIONS
