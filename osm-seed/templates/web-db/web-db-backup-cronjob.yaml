@@ -62,7 +62,7 @@ spec:
                 value: {{ $.Values.osmchaDb.env.POSTGRES_USER }}
             {{- end }}
               # DB_ACTION, backup naming, cleanup, bucket, CLOUDPROVIDER, AWS keys: from the job env
-              {{- include "osm-seed.jobEnv" (dict "root" $ "env" $job.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER")) | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" $job.env) | nindent 14 }}
             # Node selector
             {{- include "osm-seed.resources" $job | nindent 12 }}
           restartPolicy: OnFailure

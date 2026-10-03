@@ -123,16 +123,14 @@ Usage: {{ include "osm-seed.storageProvider" . }}
 {{/*
 Env of a job: everything in its values env, as is, including CLOUDPROVIDER,
 AWS_S3_BUCKET and AWS keys. CLOUDPROVIDER defaults to the storage provider.
-skip: names the template sets itself.
-Usage: {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetDump.env "skip" (list "POSTGRES_HOST")) | nindent 14 }}
+Usage: {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetDump.env) | nindent 14 }}
 */}}
 {{- define "osm-seed.jobEnv" -}}
 {{- $env := .env | default dict -}}
 - name: CLOUDPROVIDER
   value: {{ $env.CLOUDPROVIDER | default (include "osm-seed.storageProvider" .root) | quote }}
-{{- $skip := concat (list "CLOUDPROVIDER") (.skip | default list) }}
 {{- range $k, $v := $env }}
-{{- if not (has $k $skip) }}
+{{- if ne $k "CLOUDPROVIDER" }}
 - name: {{ $k }}
   value: {{ $v | quote }}
 {{- end }}

@@ -29,7 +29,7 @@ spec:
             command: ['/app/start.sh']
             {{- include "osm-seed.resources" .Values.planetStats | nindent 12 }}
             env:
-              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetStats.env "skip" (list)) | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetStats.env) | nindent 14 }}
           restartPolicy: OnFailure
           {{- include "osm-seed.nodeSelector" .Values.planetStats | nindent 10 }}
           {{- include "osm-seed.nodeAffinity" .Values.planetStats | nindent 10 }}

@@ -36,7 +36,7 @@ spec:
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
               - name: REPLICATION_FOLDER
                 value: replication/minute
-              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.monitoringReplication.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER" "REPLICATION_FOLDER" "MEMORY_JAVACMD_OPTIONS")) | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.monitoringReplication.env) | nindent 14 }}
               # Memory optimization for osmosis
               {{- if .Values.monitoringReplication.resources.requests }}   
               - name: MEMORY_JAVACMD_OPTIONS

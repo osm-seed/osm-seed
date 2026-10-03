@@ -17,6 +17,6 @@ spec:
           command: ['./start.sh']
           {{- include "osm-seed.resources" .Values.osmProcessor | nindent 10 }}
           env:
-            {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.osmProcessor.env "skip" (list)) | nindent 12 }}
+            {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.osmProcessor.env) | nindent 12 }}
         restartPolicy: Never
 {{- end }}

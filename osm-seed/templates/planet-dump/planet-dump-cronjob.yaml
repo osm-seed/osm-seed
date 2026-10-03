@@ -34,7 +34,7 @@ spec:
                 value: {{ quote .Values.webDb.env.POSTGRES_PASSWORD }}
               - name: POSTGRES_USER
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
-              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetDump.env "skip" (list "POSTGRES_HOST" "POSTGRES_DB" "POSTGRES_PASSWORD" "POSTGRES_USER" "MEMORY_JAVACMD_OPTIONS")) | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.planetDump.env) | nindent 14 }}
               # Memory optimization for osmosis
               {{- if .Values.planetDump.resources.requests }}   
               - name: MEMORY_JAVACMD_OPTIONS

@@ -26,7 +26,7 @@ spec:
             command: ['/start.sh']
             {{- include "osm-seed.resources" .Values.changesetsDump | nindent 12 }}
             env:
-              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.changesetsDump.env "skip" (list)) | nindent 14 }}
+              {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.changesetsDump.env) | nindent 14 }}
           restartPolicy: OnFailure
           {{- include "osm-seed.nodeSelector" .Values.changesetsDump | nindent 10 }}
           {{- include "osm-seed.nodeAffinity" .Values.changesetsDump | nindent 10 }}
