@@ -1,5 +1,6 @@
 ### Unreleased
 
+- tiler-cache, tiler-monitor-pipeline, tiler-monitor-language, the osmcha cron jobs and osm-processor now read `nodeAffinity` too, like every other component.
 - Rename `cloudProvider` to `storageProvider`: it only picks where the disks live (aws: EBS, k3s: folders on the node). The old name still works.
 - Dump, replication, metrics and backup jobs now pass their whole `env` as is, including `CLOUDPROVIDER`, `AWS_S3_BUCKET` and AWS keys. This lets them upload from a cluster with no IRSA (k3s).
 - Breaking: the global `AWS_S3_BUCKET` is removed. Set `AWS_S3_BUCKET` in the `env` of each job (and `tilerServer.env`). `CLOUDPROVIDER` still defaults to `storageProvider`.

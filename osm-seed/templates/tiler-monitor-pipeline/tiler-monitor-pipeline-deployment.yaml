@@ -73,4 +73,5 @@ spec:
             claimName: {{ .Release.Name }}-tiler-monitor-pipeline-data
       {{- end }}
       {{- include "osm-seed.nodeSelector" .Values.tilerMonitorPipeline | nindent 6 }}
+      {{- include "osm-seed.nodeAffinity" .Values.tilerMonitorPipeline | nindent 6 }}
 {{- end }}

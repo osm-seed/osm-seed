@@ -48,4 +48,5 @@ spec:
                   optional: true
               {{- include "osm-seed.resources" .Values.tilerMonitorLanguage | nindent 14 }}
           {{- include "osm-seed.nodeSelector" .Values.tilerMonitorLanguage | nindent 10 }}
+          {{- include "osm-seed.nodeAffinity" .Values.tilerMonitorLanguage | nindent 10 }}
 {{- end }}

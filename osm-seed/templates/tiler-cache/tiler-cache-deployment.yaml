@@ -77,4 +77,5 @@ spec:
             periodSeconds: 20
           {{- include "osm-seed.resources" .Values.tilerCache | nindent 10 }}
       {{- include "osm-seed.nodeSelector" .Values.tilerCache | nindent 6 }}
+      {{- include "osm-seed.nodeAffinity" .Values.tilerCache | nindent 6 }}
 {{- end }}

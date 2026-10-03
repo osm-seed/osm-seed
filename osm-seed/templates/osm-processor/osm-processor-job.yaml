@@ -19,4 +19,6 @@ spec:
           env:
             {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.osmProcessor.env) | nindent 12 }}
         restartPolicy: Never
+        {{- include "osm-seed.nodeSelector" .Values.osmProcessor | nindent 8 }}
+        {{- include "osm-seed.nodeAffinity" .Values.osmProcessor | nindent 8 }}
 {{- end }}
