@@ -29,13 +29,14 @@ spec:
               - name: OVERWRITE_CHANGESETS_FILE
                 value: {{ .Values.changesetsDump.env.OVERWRITE_CHANGESETS_FILE | quote}}
               - name: CLOUDPROVIDER
-                value: {{ .Values.cloudProvider }}
+                value: {{ include "osm-seed.uploadProvider" . }}
               - name: DUMP_CLOUD_URL
                 value: {{ .Values.changesetsDump.env.DUMP_CLOUD_URL | quote}}
               - name: AWS_S3_BUCKET
                 value: {{ .Values.AWS_S3_BUCKET }}
               - name: PLANET_EPOCH_DATE
                 value: {{ .Values.changesetsDump.env.PLANET_EPOCH_DATE | quote }}
+              {{- include "osm-seed.awsCredentialsEnv" . | nindent 14 }}
           restartPolicy: OnFailure
           {{- include "osm-seed.nodeSelector" .Values.changesetsDump | nindent 10 }}
           {{- include "osm-seed.nodeAffinity" .Values.changesetsDump | nindent 10 }}

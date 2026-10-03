@@ -127,7 +127,8 @@ spec:
             {{- end }}
               # Cloud provider
               - name: CLOUDPROVIDER
-                value: {{ $.Values.cloudProvider }}
+                value: {{ include "osm-seed.uploadProvider" $ }}
+              {{- include "osm-seed.awsCredentialsEnv" $ | nindent 14 }}
             # Node selector
             {{- include "osm-seed.resources" $job | nindent 12 }}
           restartPolicy: OnFailure

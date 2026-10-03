@@ -35,7 +35,7 @@ spec:
               - name: POSTGRES_USER
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
               - name: CLOUDPROVIDER
-                value: {{ .Values.cloudProvider }}
+                value: {{ include "osm-seed.uploadProvider" . }}
               - name: OVERWRITE_PLANET_FILE
                 value: {{ .Values.planetDump.env.OVERWRITE_PLANET_FILE | quote}}
               - name: PLANET_EXPORT_METHOD

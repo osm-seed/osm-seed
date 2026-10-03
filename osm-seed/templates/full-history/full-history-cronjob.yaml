@@ -37,7 +37,7 @@ spec:
               - name: OVERWRITE_FHISTORY_FILE
                 value: {{ .Values.fullHistory.env.OVERWRITE_FHISTORY_FILE | quote}}
               - name: CLOUDPROVIDER
-                value: {{ .Values.cloudProvider }}
+                value: {{ include "osm-seed.uploadProvider" . }}
               - name: PLANET_EXPORT_METHOD
                 value: {{ .Values.fullHistory.env.PLANET_EXPORT_METHOD | quote}}
               - name: DUMP_CLOUD_URL

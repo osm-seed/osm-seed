@@ -30,7 +30,7 @@ spec:
             {{- include "osm-seed.resources" .Values.planetStats | nindent 12 }}
             env:
               - name: CLOUDPROVIDER
-                value: {{ .Values.cloudProvider }}
+                value: {{ include "osm-seed.uploadProvider" . }}
               # Pipeline config + static S3 credentials (state round-trip + planet fetch)
               {{- range $k, $v := .Values.planetStats.env }}
               - name: {{ $k }}

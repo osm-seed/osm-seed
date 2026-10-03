@@ -4,6 +4,13 @@ environment: development
 cloudProvider: aws
 # Cloud storage bucket for the provider set above
 AWS_S3_BUCKET: s3://osm-seed
+# Static AWS keys, for clusters with no IRSA (k3s). When set, they are stored in
+# the Secret <release>-aws-credentials, and the dump, replication and backup jobs
+# use them to upload to S3 (CLOUDPROVIDER=aws), whatever cloudProvider says.
+# Leave empty on EKS, where jobs use their serviceAccount.
+awsCredentials:
+  accessKeyId: ""
+  secretAccessKey: ""
 
 # Service type: NodePort, ClusterIP or LoadBalancer. ClusterIP is recommended;
 serviceType: ClusterIP

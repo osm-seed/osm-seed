@@ -53,7 +53,7 @@ spec:
             - name: REPLICATION_FOLDER
               value: replication/minute
             - name: CLOUDPROVIDER
-              value: {{ .Values.cloudProvider }}
+              value: {{ include "osm-seed.uploadProvider" . }}
             {{- include "osm-seed.cloudEnv" . | nindent 12 }}
               # Memory optimization for osmosis
             {{- if .Values.replicationJob.resources.requests }}

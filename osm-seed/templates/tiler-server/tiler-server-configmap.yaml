@@ -15,7 +15,7 @@ data:
     TILER_CACHE_AWS_ENDPOINT: {{ .Values.tilerServer.env.TILER_CACHE_AWS_ENDPOINT | default "" | quote }}
     EXECUTE_REINDEX: {{ .Values.tilerServer.env.EXECUTE_REINDEX | default "false" | quote }}
     EXECUTE_VACUUM_ANALYZE: {{ .Values.tilerServer.env.EXECUTE_VACUUM_ANALYZE | default "false" | quote }}
-    CLOUDPROVIDER: {{ .Values.cloudProvider | quote }}
+    CLOUDPROVIDER: {{ include "osm-seed.uploadProvider" . | quote }}
     {{- if eq .Values.cloudProvider "aws" }}
     AWS_S3_BUCKET: {{ .Values.AWS_S3_BUCKET | quote }}
     {{- end }}

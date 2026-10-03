@@ -35,7 +35,7 @@ spec:
               - name: POSTGRES_USER
                 value: {{ .Values.webDb.env.POSTGRES_USER }}
               - name: CLOUDPROVIDER
-                value: {{ .Values.cloudProvider }}
+                value: {{ include "osm-seed.uploadProvider" . }}
               - name: REPLICATION_FOLDER
                 value: replication/minute
               - name: CREATE_MISSING_FILES

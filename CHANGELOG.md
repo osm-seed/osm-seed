@@ -1,5 +1,6 @@
 ### Unreleased
 
+- Add `awsCredentials` for clusters with no IRSA (k3s). When set, the dump, replication, metrics and backup jobs get the keys from the Secret `<release>-aws-credentials` and upload to S3 (`CLOUDPROVIDER=aws`), even with `cloudProvider: k3s`. Empty by default: nothing changes on EKS.
 - `webApi.podAntiAffinity` is now preferred, not required. With a single web node, a rollout no longer gets stuck with the new pod `Pending`.
 - k3s `staticHostPath`: only one release can use a folder. To free it, delete `<localVolumeHostPath>/.owner` on the node.
 - Add `webDb.pgbackrest`: WAL archiving and daily base backups of web-db to S3 with pgBackRest, the same setup OSMF uses. With `archive_timeout` the max data loss is about one minute. The `db` image now includes pgBackRest.

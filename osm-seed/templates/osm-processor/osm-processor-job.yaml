@@ -22,7 +22,7 @@ spec:
             - name: OSM_FILE_ACTION
               value: {{.Values.osmProcessor.env.OSM_FILE_ACTION}}
             - name: CLOUDPROVIDER
-              value: {{ .Values.cloudProvider }}
+              value: {{ include "osm-seed.uploadProvider" . }}
             {{- include "osm-seed.cloudEnv" . | nindent 12 }}
         restartPolicy: Never
 {{- end }}

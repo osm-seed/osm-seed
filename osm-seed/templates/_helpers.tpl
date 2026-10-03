@@ -115,8 +115,39 @@ Env vars that tell jobs where to upload files, per cloudProvider.
 Usage: {{- include "osm-seed.cloudEnv" . | nindent 12 }}
 */}}
 {{- define "osm-seed.cloudEnv" -}}
-{{- if eq .Values.cloudProvider "aws" }}
+{{- if eq (include "osm-seed.uploadProvider" .) "aws" }}
 - name: AWS_S3_BUCKET
   value: {{ .Values.AWS_S3_BUCKET }}
+{{- end }}
+{{- include "osm-seed.awsCredentialsEnv" . }}
+{{- end -}}
+
+{{/*
+Where jobs upload files, for their CLOUDPROVIDER env. Static AWS keys
+(awsCredentials) mean S3, whatever cloudProvider says: on k3s, cloudProvider
+only picks the storage.
+Usage: value: {{ include "osm-seed.uploadProvider" $ }}
+*/}}
+{{- define "osm-seed.uploadProvider" -}}
+{{- if .Values.awsCredentials.accessKeyId -}}aws{{- else -}}{{ .Values.cloudProvider }}{{- end -}}
+{{- end -}}
+
+{{/*
+AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from <release>-aws-credentials,
+when awsCredentials is set. Nothing on EKS (IRSA).
+Usage: {{- include "osm-seed.awsCredentialsEnv" $ | nindent 14 }}
+*/}}
+{{- define "osm-seed.awsCredentialsEnv" -}}
+{{- if .Values.awsCredentials.accessKeyId }}
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Release.Name }}-aws-credentials
+      key: AWS_ACCESS_KEY_ID
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Release.Name }}-aws-credentials
+      key: AWS_SECRET_ACCESS_KEY
 {{- end }}
 {{- end -}}
