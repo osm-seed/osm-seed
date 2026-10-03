@@ -76,14 +76,18 @@ affinity:
               {{- end }}
   {{- end }}
   {{- if $anti }}
+  # Preferred, not required: pods spread over nodes when there are several, but
+  # with a single node a rollout can still start the new pod next to the old one.
   podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            app: {{ template "osm-seed.name" .root }}
-            release: {{ .root.Release.Name }}
-            run: {{ .root.Release.Name }}-{{ .component }}
-        topologyKey: "kubernetes.io/hostname"
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: {{ template "osm-seed.name" .root }}
+              release: {{ .root.Release.Name }}
+              run: {{ .root.Release.Name }}-{{ .component }}
+          topologyKey: "kubernetes.io/hostname"
   {{- end }}
 {{- end }}
 {{- end -}}
