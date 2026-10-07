@@ -1,6 +1,6 @@
 # changeset-replication-job
 
-Publishes changeset replication files with `replicate_changesets.rb`, a copy of the [script that OpenStreetMap runs](https://github.com/openstreetmap/chef/blob/master/cookbooks/planet/templates/default/replicate-changesets.erb), and uploads them to `replication/changesets` in S3. Each sequence has a `.osm.gz` and a `.state.txt` file. State is recovered from S3 on restart.
+Publishes changeset replication files with `replicate_changesets.rb`, a copy of the [script that OpenStreetMap runs](https://github.com/openstreetmap/chef/blob/master/cookbooks/planet/templates/default/replicate-changesets.erb), and uploads them to `replication/changesets` in S3. Each sequence has a `.osm.gz` and a `.state.txt` file. When there are no changesets to publish, the job writes and uploads nothing. State is recovered from S3 on restart.
 
 | | |
 |---|---|

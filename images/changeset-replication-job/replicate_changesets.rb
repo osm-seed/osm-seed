@@ -2,7 +2,8 @@
 
 # Copied from the OpenStreetMap chef repository:
 # https://github.com/openstreetmap/chef/blob/c97d0846c6566c022502f8a6a07d3fcea1ca3fe8/cookbooks/planet/templates/default/replicate-changesets.erb
-# Only the shebang changes. To update, copy the new version of that file here.
+# Local changes: the shebang, and the run is skipped when there are no changesets (see save!).
+# To update, copy the new version of that file here and apply those two changes again.
 
 require "rubygems"
 require "bigdecimal"
@@ -289,6 +290,14 @@ class Replicator
       # clashes, or people seeing incomplete files.
       begin
         changesets = open_changesets
+
+        # Local change: write nothing when there are no changesets to publish.
+        # The sequence and last_run stay the same, so the next run covers this time too.
+        if changesets.empty?
+          fl.flock(File::LOCK_UN)
+          break
+        end
+
         @state["sequence"] = sequence
         @state["last_run"] = @now
 
