@@ -1182,6 +1182,10 @@ changesetReplicationJob:
   enabled: false
   env:
     AWS_S3_BUCKET: ""
+    # Header of the replication files. Without them, the OpenStreetMap values are used.
+    # COPYRIGHT_OWNER: "OpenStreetMap and contributors"
+    # ATTRIBUTION_URL: "https://www.openstreetmap.org/copyright"
+    # LICENSE_URL: "https://opendatacommons.org/licenses/odbl/1-0/"
   image:
     name: ""
     tag: ""

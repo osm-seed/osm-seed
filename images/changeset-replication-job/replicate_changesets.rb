@@ -2,8 +2,11 @@
 
 # Copied from the OpenStreetMap chef repository:
 # https://github.com/openstreetmap/chef/blob/c97d0846c6566c022502f8a6a07d3fcea1ca3fe8/cookbooks/planet/templates/default/replicate-changesets.erb
-# Local changes: the shebang, and the run is skipped when there are no changesets (see save!).
-# To update, copy the new version of that file here and apply those two changes again.
+# Local changes, marked with "Local change" in the code:
+# - the shebang
+# - the run is skipped when there are no changesets (see save!)
+# - copyright, attribution and license come from env vars (see changeset_dump)
+# To update, copy the new version of that file here and apply those changes again.
 
 require "rubygems"
 require "bigdecimal"
@@ -190,9 +193,10 @@ class Replicator
     doc.root = XML::Node.new("osm")
     { "version" => "0.6",
       "generator" => "replicate_changesets.rb",
-      "copyright" => "OpenStreetMap and contributors",
-      "attribution" => "https://www.openstreetmap.org/copyright",
-      "license" => "https://opendatacommons.org/licenses/odbl/1-0/" }
+      # Local change: these three values come from env vars, with the OSM values as default.
+      "copyright" => ENV.fetch("COPYRIGHT_OWNER", "OpenStreetMap and contributors"),
+      "attribution" => ENV.fetch("ATTRIBUTION_URL", "https://www.openstreetmap.org/copyright"),
+      "license" => ENV.fetch("LICENSE_URL", "https://opendatacommons.org/licenses/odbl/1-0/") }
       .each { |k, v| doc.root[k] = v }
 
     builder = ChangesetBuilder.new(@now, @conn)
