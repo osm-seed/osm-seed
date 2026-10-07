@@ -1,13 +1,16 @@
-FROM ruby:2.4
-RUN git clone https://github.com/zerebubuth/openstreetmap-changeset-replication.git /app
+FROM ruby:3.4
 WORKDIR /app
-RUN apt-get install -y curl unzip
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-    && unzip awscliv2.zip \
-    && ./aws/install
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl unzip \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "awscliv2.zip" \
+    && unzip -q awscliv2.zip \
+    && ./aws/install \
+    && rm -rf awscliv2.zip aws
 # TODO: Install Google Cloud Platform (GCP) and Azure CLI for better data management
-RUN gem install pg -v 0.21.0 
-RUN gem install libxml-ruby -v 3.1.0
-COPY start.sh .
-RUN chmod +x replicate_changesets.rb
+# libxml-ruby 6 removed "xml/libxml", which the script requires
+RUN gem install bigdecimal pg \
+    && gem install libxml-ruby -v 5.0.5
+COPY replicate_changesets.rb start.sh ./
+RUN chmod +x replicate_changesets.rb start.sh
 CMD /app/start.sh

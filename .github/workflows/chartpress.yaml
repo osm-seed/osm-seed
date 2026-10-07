@@ -1,7 +1,7 @@
 name: Chartpress Publish
 on:
   push:
-    branches: [main, 'build-*']
+    branches: ['**']
     tags: ['*']
     paths-ignore: ['**.md', 'docs/**', 'LICENSE.txt']
   pull_request:
@@ -9,9 +9,10 @@ on:
     paths-ignore: ['**.md', 'docs/**', 'LICENSE.txt']
 jobs:
   build:
-    # Name a branch build-<something> to publish a dev chart from it.
-    # Its pull request is skipped, so the branch does not build twice.
-    if: github.event_name == 'push' || !startsWith(github.head_ref, 'build-')
+    # A push to any branch publishes a dev chart from it.
+    # Pull requests from branches of this repository are skipped, so they do not build twice.
+    # Pull requests from forks still run, to validate the build.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -49,7 +50,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GHCR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
       run: |
-        # Pull requests only build to validate. Pushes to main, build-* and tags
+        # Pull requests only build to validate. Pushes to any branch and tags
         # publish the chart and push the images. Chartpress uses the git history
         # (fetch-depth: 0) to find which images changed.
         if [ "${{ github.event_name }}" = "pull_request" ]; then

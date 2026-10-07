@@ -37,14 +37,7 @@ spec:
               value: {{ quote .Values.webDb.env.POSTGRES_PASSWORD }}
             - name: POSTGRES_USER
               value: {{ .Values.webDb.env.POSTGRES_USER }}
-            - name: REPLICATION_FOLDER
-              value: replication/minute
             {{- include "osm-seed.jobEnv" (dict "root" $ "env" .Values.changesetReplicationJob.env) | nindent 12 }}
-              # Memory optimization for osmosis
-            {{- if .Values.changesetReplicationJob.resources.requests }}
-            - name: MEMORY_JAVACMD_OPTIONS
-              value: {{ .Values.changesetReplicationJob.resources.requests.memory | default "2Gi" | quote}}
-            {{- end }}
       {{- include "osm-seed.nodeSelector" .Values.changesetReplicationJob | nindent 6 }}
       {{- include "osm-seed.nodeAffinity" .Values.changesetReplicationJob | nindent 6 }}
 {{- end }}
