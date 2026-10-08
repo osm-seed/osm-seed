@@ -35,26 +35,19 @@ spec:
             - name: http
               containerPort: {{ .Values.tilerCache.env.PORT }}
           env:
-            - name: PORT
-              value: {{ .Values.tilerCache.env.PORT | quote }}
             - name: ENVIRONMENT
               value: {{ .Release.Name | quote }}
             # Varnish endpoint for BAN invalidation.
             # Defaults to the in-cluster varnish service; override env.VARNISH_URL to change it.
             - name: VARNISH_URL
               value: {{ .Values.tilerCache.env.VARNISH_URL | default (printf "http://%s-tiler-varnish:6081" .Release.Name) | quote }}
-            - name: ZOOM_LEVELS_TO_DELETE
-              value: {{ .Values.tilerCache.env.ZOOM_LEVELS_TO_DELETE | quote }}
-            # SQS processor (purge/seed) reads from a remote AWS queue
-            - name: SQS_QUEUE_URL
-              value: {{ .Values.tilerCache.env.SQS_QUEUE_URL | quote }}
-            - name: AWS_REGION_NAME
-              value: {{ .Values.tilerCache.env.AWS_REGION_NAME | default "us-east-1" | quote }}
-            {{- if .Values.tilerCache.env.AWS_ACCESS_KEY_ID }}
-            - name: AWS_ACCESS_KEY_ID
-              value: {{ .Values.tilerCache.env.AWS_ACCESS_KEY_ID | quote }}
-            - name: AWS_SECRET_ACCESS_KEY
-              value: {{ .Values.tilerCache.env.AWS_SECRET_ACCESS_KEY | quote }}
+            # Any other key in tilerCache.env is passed as is. Empty values are skipped,
+            # so empty AWS keys do not override a serviceAccount/IRSA.
+            {{- range $k, $v := .Values.tilerCache.env }}
+            {{- if and (ne $k "ENVIRONMENT") (ne $k "VARNISH_URL") (ne (toString $v) "") }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
             {{- end }}
           envFrom:
           # sqs_processor connects to the tiler DB (POSTGRES_* from this configmap)

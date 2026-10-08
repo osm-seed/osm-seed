@@ -759,6 +759,8 @@ tilerCache:
     # Varnish endpoint to send BAN requests. Empty => http://<release>-tiler-varnish:6081
     VARNISH_URL: ""
     ZOOM_LEVELS_TO_DELETE: 13,14,15,16,17,18,19,20
+    # Base URL to download the imposm expire files. Empty => path-style S3 URL
+    EXPIRED_TILES_BASE_URL: ""
     # SQS processor (purge/seed): remote AWS queue + credentials
     SQS_QUEUE_URL: ""
     AWS_REGION_NAME: us-east-1
