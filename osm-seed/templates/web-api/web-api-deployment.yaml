@@ -31,25 +31,28 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            {{- if .Values.webApi.livenessProbeExec }}
-            exec:
-              command:
-              - /bin/bash
-              - -c
-              - ./liveness.sh
-            initialDelaySeconds: 120
-            timeoutSeconds: 5
-            periodSeconds: 20
-            failureThreshold: 5
-            successThreshold: 1
-            {{- else }}
+          # /api/versions goes through Apache, Passenger and Rails without touching the database.
+          startupProbe:
             httpGet:
-              path: /api/0.6/capabilities
-              port: 80
-            initialDelaySeconds: 600 # 10 min, because the compile process takes time.
-            timeoutSeconds: 30
-            {{- end }}
+              path: /api/versions
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 120 # up to 10 min, because the compile process takes time.
+          readinessProbe:
+            httpGet:
+              path: /api/versions
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/versions
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
           {{- include "osm-seed.resources" .Values.webApi | nindent 10 }}
           env:
             # ---- Computed / cluster-specific (not plain web.env pass-throughs) ----
