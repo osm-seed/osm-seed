@@ -1,0 +1,16 @@
+version: '3'
+services:
+  #####################################################
+  ## OSM Coastline
+  #####################################################
+  osmcoastline:
+    platform: linux/amd64
+    image: osmseed-osmcoastline:v1
+    build:
+      context: ../images/osmcoastline
+      dockerfile: Dockerfile
+    volumes:
+      - ../data/osmcoastline-data:/mnt/data
+    env_file:
+      - ../envs/.env.osmcoastline
+      
