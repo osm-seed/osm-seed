@@ -1,4 +1,4 @@
-FROM ruby:3.3-slim AS builder
+FROM ruby:3.4-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive \
     workdir=/var/www \
@@ -14,10 +14,9 @@ WORKDIR $workdir
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git curl gnupg build-essential \
-    libarchive-dev zlib1g-dev libcurl4-openssl-dev \
+    libarchive-dev zlib1g-dev libcurl4-openssl-dev libgd-dev libvips-dev \
     apache2 apache2-dev libapache2-mod-fcgid libapr1-dev libaprutil1-dev \
     postgresql-client libpq-dev libxml2-dev libyaml-dev \
-    libgd-dev \
     pngcrush optipng advancecomp pngquant jhead jpegoptim gifsicle libjpeg-progs unzip\
     && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y nodejs \
@@ -26,14 +25,14 @@ RUN apt-get update && \
 
 
 # Clone OSM Website
-ENV OPENSTREETMAP_WEBSITE_GITSHA=a244e419719ded592fb87e7ffd360f6e462a0d67
+ENV OPENSTREETMAP_WEBSITE_GITSHA=9da20921c0a257d4d7ddd52de36bd3b75f3c8372
 ENV OSM_WEBSITE_URL=https://github.com/openstreetmap/openstreetmap-website/archive/${OPENSTREETMAP_WEBSITE_GITSHA}.zip
 RUN rm -rf $workdir/* && curl -fsSL $OSM_WEBSITE_URL -o /tmp/openstreetmap-website.zip && \
     unzip /tmp/openstreetmap-website.zip -d /tmp && \
     mv /tmp/openstreetmap-website-$OPENSTREETMAP_WEBSITE_GITSHA/* $workdir && \
     rm -rf /tmp/*
 
-RUN gem install bundler && \
+RUN gem install bundler -v 4.0.20 --no-document && \
     bundle install && \
     yarn install && \
     bundle exec rake yarn:install
@@ -73,7 +72,7 @@ COPY patches/ /$workdir/
 RUN patch /$workdir/config/initializers/doorkeeper.rb /$workdir/config/initializers/doorkeeper.rb.patch
 
 
-FROM ruby:3.3-slim
+FROM ruby:3.4-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
     workdir=/var/www \
@@ -95,7 +94,6 @@ RUN BUILD_DEPS=" \
     " \
     && apt-get update && apt-get install -y --no-install-recommends \
     $BUILD_DEPS \
-    libgd-dev \
     apache2 \
     libapache2-mod-fcgid \
     libpq5 \
@@ -119,7 +117,7 @@ RUN BUILD_DEPS=" \
     \
     # Install Passenger as a gem and compile the Apache module
     \
-    && gem install passenger --no-document \
+    && gem install passenger -v 6.1.3 --no-document \
     && yes | passenger-install-apache2-module --auto --languages ruby \
     && passenger-config validate-install --auto \
     \
@@ -155,6 +153,9 @@ WORKDIR $workdir
 
 COPY --chown=www-data:www-data --from=builder /var/www /$workdir
 COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+# Install bundler matching the Gemfile.lock to avoid Passenger preloader Gem::LoadError
+RUN gem install bundler -v 4.0.20 --no-document
 
 COPY config/settings.yml $workdir/config/
 COPY start.sh liveness.sh $workdir/

@@ -7,6 +7,8 @@
 - `webApi.podAntiAffinity` is now preferred, not required. With a single web node, a rollout no longer gets stuck with the new pod `Pending`.
 - k3s `staticHostPath`: only one release can use a folder. To free it, delete `<localVolumeHostPath>/.owner` on the node.
 - Add `webDb.pgbackrest`: WAL archiving and daily base backups of web-db to S3 with pgBackRest, the same setup OSMF uses. With `archive_timeout` the max data loss is about one minute. The `db` image now includes pgBackRest.
+- `web` uses Ruby 3.4 and openstreetmap-website `9da2092`, which needs PostGIS.
+- The `db` image now includes PostGIS 3 and creates `postgis`, `hstore` and `btree_gist` on a fresh initdb. On an existing database the `postgis` migration needs a DB user with superuser rights.
 
 ### v2.0.0
 
