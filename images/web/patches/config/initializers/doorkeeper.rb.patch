@@ -1,4 +1,4 @@
 270c270
-<     !Rails.env.development? && uri.host != "127.0.0.1"
+<     !Rails.env.development? && ["127.0.0.1", "::1"].exclude?(uri.host)
 ---
->     !Rails.env.development? && !["127.0.0.1", "localhost"].include?(uri.host)
+>     !Rails.env.development? && ["127.0.0.1", "::1", "localhost"].exclude?(uri.host)
