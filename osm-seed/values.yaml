@@ -246,6 +246,7 @@ fullHistory:
   schedule: "* * * * *"
   env:
     AWS_S3_BUCKET: ""
+    PUBLIC_BASE_URL: ""
     OVERWRITE_FHISTORY_FILE: false
     PLANET_EXPORT_METHOD: planet-dump-ng
     DUMP_CLOUD_URL: s3://osm-seed/db.dump
@@ -272,6 +273,7 @@ changesetsDump:
   schedule: "* * * * *"
   env:
     AWS_S3_BUCKET: ""
+    PUBLIC_BASE_URL: ""
     OVERWRITE_CHANGESETS_FILE: false
     DUMP_CLOUD_URL: s3://osm-seed/db.dump
     PLANET_EPOCH_DATE: '1970-01-01'
@@ -373,6 +375,7 @@ planetDump:
   schedule: "* * * * *"
   env:
     AWS_S3_BUCKET: ""
+    PUBLIC_BASE_URL: ""
     OVERWRITE_PLANET_FILE: false
     DUMP_CLOUD_URL: s3://osm-seed/db.dump
     PLANET_EXPORT_METHOD: planet-dump-ng
