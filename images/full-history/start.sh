@@ -93,8 +93,15 @@ download_dump_file() {
 upload_planet_file() {
 	echo "Uploading history planet file and updating state.txt..."
 
-	AWS_URL=${AWS_S3_BUCKET/s3:\/\//http:\/\/}
-	echo "$AWS_URL.s3.amazonaws.com/$cloud_planetHistoryPBFFile" > "$stateFile"
+	# Link written into state.txt. PUBLIC_BASE_URL is the public domain that serves
+	# the bucket (e.g. https://planet.openhistoricalmap.org). Without it, fall back
+	# to the raw S3 URL built from the bucket name.
+	if [ -n "$PUBLIC_BASE_URL" ]; then
+		echo "${PUBLIC_BASE_URL%/}/$cloud_planetHistoryPBFFile" > "$stateFile"
+	else
+		AWS_URL=${AWS_S3_BUCKET/s3:\/\//http:\/\/}
+		echo "$AWS_URL.s3.amazonaws.com/$cloud_planetHistoryPBFFile" > "$stateFile"
+	fi
 	aws s3 cp "$local_planetHistoryPBFFile" "$AWS_S3_BUCKET/$cloud_planetHistoryPBFFile" --acl public-read
 	aws s3 cp "$stateFile" "$AWS_S3_BUCKET/${folder_planetHistoryPBFFile}/state.txt" --acl public-read
 

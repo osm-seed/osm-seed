@@ -64,8 +64,15 @@ download_dump_file() {
 upload_changesets_file() {
 	echo "Uploading changesets file and updating state.txt..."
 
-	AWS_URL=${AWS_S3_BUCKET/s3:\/\//http:\/\/}
-	echo "$AWS_URL.s3.amazonaws.com/$cloud_changesetsFile" > "$stateFile"
+	# Link written into state.txt. PUBLIC_BASE_URL is the public domain that serves
+	# the bucket (e.g. https://planet.openhistoricalmap.org). Without it, fall back
+	# to the raw S3 URL built from the bucket name.
+	if [ -n "$PUBLIC_BASE_URL" ]; then
+		echo "${PUBLIC_BASE_URL%/}/$cloud_changesetsFile" > "$stateFile"
+	else
+		AWS_URL=${AWS_S3_BUCKET/s3:\/\//http:\/\/}
+		echo "$AWS_URL.s3.amazonaws.com/$cloud_changesetsFile" > "$stateFile"
+	fi
 	aws s3 cp "$local_changesetsFile" "$AWS_S3_BUCKET/$cloud_changesetsFile" --acl public-read
 	aws s3 cp "$stateFile" "$AWS_S3_BUCKET/${folder_changesetsFile}/state.txt" --acl public-read
 }
