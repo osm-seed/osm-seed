@@ -1,7 +1,7 @@
 # MapRoulette frontend. Based on https://github.com/maproulette/maproulette2-docker
 # URLs are built as placeholders and replaced at container start (see 40-maproulette-env.sh),
 # so the same image works for any osm-seed deployment.
-FROM node:22-bullseye AS builder
+FROM node:22-bookworm AS builder
 
 ARG GIT=maproulette/maproulette-frontend
 ARG VERSION=v3.18.8
