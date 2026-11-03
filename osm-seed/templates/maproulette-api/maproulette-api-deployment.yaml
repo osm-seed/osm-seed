@@ -1,13 +1,12 @@
-{{- if .Values.maproulette.enabled -}}
-{{- $mr := .Values.maproulette -}}
+{{- if .Values.maprouletteApi.enabled -}}
 {{- $db := .Values.maprouletteDb -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-maproulette
+  name: {{ .Release.Name }}-maproulette-api
   labels:
     app: {{ template "osm-seed.name" . }}
-    component: maproulette
+    component: maproulette-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 spec:
@@ -19,22 +18,22 @@ spec:
     matchLabels:
       app: {{ template "osm-seed.name" . }}
       release: {{ .Release.Name }}
-      run: {{ .Release.Name }}-maproulette
+      run: {{ .Release.Name }}-maproulette-api
   template:
     metadata:
       labels:
         app: {{ template "osm-seed.name" . }}
         release: {{ .Release.Name }}
-        run: {{ .Release.Name }}-maproulette
+        run: {{ .Release.Name }}-maproulette-api
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/maproulette/maproulette-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/maproulette-api/maproulette-api-configmap.yaml") . | sha256sum }}
     spec:
-      priorityClassName: {{ .Release.Name }}-{{ $mr.priorityClass | default "medium-priority" }}
+      priorityClassName: {{ .Release.Name }}-{{ .Values.maprouletteApi.priorityClass | default "medium-priority" }}
       containers:
         - name: maproulette-api
-          image: "{{ $mr.api.image.name }}:{{ $mr.api.image.tag }}"
+          image: "{{ .Values.maprouletteApi.image.name }}:{{ .Values.maprouletteApi.image.tag }}"
           ports:
-            - name: api
+            - name: http
               containerPort: 9000
           env:
             - name: MR_DATABASE_URL
@@ -43,13 +42,7 @@ spec:
               value: {{ $db.env.POSTGRES_USER | quote }}
             - name: MR_DATABASE_PASSWORD
               value: {{ $db.env.POSTGRES_PASSWORD | quote }}
-            - name: MR_OSM_SERVER
-              value: {{ $mr.osmServerUrl | quote }}
-            - name: MR_FRONTEND_URL
-              value: {{ $mr.publicUrl | quote }}
-            - name: MR_PUBLIC_ORIGIN
-              value: {{ $mr.publicUrl | quote }}
-            {{- range $key, $value := $mr.api.env }}
+            {{- range $key, $value := .Values.maprouletteApi.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
@@ -61,50 +54,29 @@ spec:
           startupProbe:
             httpGet:
               path: /ping
-              port: api
+              port: http
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 60
           readinessProbe:
             httpGet:
               path: /ping
-              port: api
+              port: http
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /ping
-              port: api
+              port: http
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 6
-          {{- include "osm-seed.resources" $mr.api | nindent 10 }}
-        - name: maproulette-web
-          image: "{{ $mr.web.image.name }}:{{ $mr.web.image.tag }}"
-          ports:
-            - name: http
-              containerPort: 80
-          env:
-            - name: MR_URL
-              value: {{ $mr.publicUrl | quote }}
-            - name: MR_OSM_SERVER
-              value: {{ $mr.osmServerUrl | quote }}
-            - name: MR_OSM_API_SERVER
-              value: {{ $mr.osmApiServerUrl | default $mr.osmServerUrl | quote }}
-            - name: MR_API_URL
-              value: http://localhost:9000
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            periodSeconds: 10
-            timeoutSeconds: 3
-          {{- include "osm-seed.resources" $mr.web | nindent 10 }}
+          {{- include "osm-seed.resources" .Values.maprouletteApi | nindent 10 }}
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-maproulette-config
-      {{- include "osm-seed.nodeSelector" $mr | nindent 6 }}
-      {{- include "osm-seed.nodeAffinity" $mr | nindent 6 }}
+            name: {{ .Release.Name }}-maproulette-api-config
+      {{- include "osm-seed.nodeSelector" .Values.maprouletteApi | nindent 6 }}
+      {{- include "osm-seed.nodeAffinity" .Values.maprouletteApi | nindent 6 }}
 {{- end }}

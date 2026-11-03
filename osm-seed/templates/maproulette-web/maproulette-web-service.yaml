@@ -1,14 +1,14 @@
-{{- if .Values.maproulette.enabled -}}
+{{- if .Values.maprouletteWeb.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-maproulette
+  name: {{ .Release.Name }}-maproulette-web
   labels:
     app: {{ template "osm-seed.name" . }}
-    component: maproulette
+    component: maproulette-web
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
-  {{- with .Values.maproulette.serviceAnnotations }}
+  {{- with .Values.maprouletteWeb.serviceAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -22,5 +22,5 @@ spec:
   selector:
     app: {{ template "osm-seed.name" . }}
     release: {{ .Release.Name }}
-    run: {{ .Release.Name }}-maproulette
+    run: {{ .Release.Name }}-maproulette-web
 {{- end }}

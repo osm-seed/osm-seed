@@ -80,8 +80,8 @@ charts:
       valuesPath: level0.image
       contextPath: images/level0
     maproulette-api:
-      valuesPath: maproulette.api.image
+      valuesPath: maprouletteApi.image
       contextPath: images/maproulette-api
     maproulette-web:
-      valuesPath: maproulette.web.image
+      valuesPath: maprouletteWeb.image
       contextPath: images/maproulette-web

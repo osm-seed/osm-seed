@@ -1,0 +1,55 @@
+{{- if .Values.maprouletteWeb.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-maproulette-web
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-web
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.maprouletteWeb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "osm-seed.name" . }}
+      release: {{ .Release.Name }}
+      run: {{ .Release.Name }}-maproulette-web
+  template:
+    metadata:
+      labels:
+        app: {{ template "osm-seed.name" . }}
+        release: {{ .Release.Name }}
+        run: {{ .Release.Name }}-maproulette-web
+    spec:
+      priorityClassName: {{ .Release.Name }}-{{ .Values.maprouletteWeb.priorityClass | default "medium-priority" }}
+      containers:
+        - name: maproulette-web
+          image: "{{ .Values.maprouletteWeb.image.name }}:{{ .Values.maprouletteWeb.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: MR_API_URL
+              value: http://{{ .Release.Name }}-maproulette-api:9000
+            {{- range $key, $value := .Values.maprouletteWeb.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          {{- include "osm-seed.resources" .Values.maprouletteWeb | nindent 10 }}
+      {{- include "osm-seed.nodeSelector" .Values.maprouletteWeb | nindent 6 }}
+      {{- include "osm-seed.nodeAffinity" .Values.maprouletteWeb | nindent 6 }}
+{{- end }}

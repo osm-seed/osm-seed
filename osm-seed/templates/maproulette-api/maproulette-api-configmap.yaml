@@ -1,11 +1,11 @@
-{{- if .Values.maproulette.enabled -}}
+{{- if .Values.maprouletteApi.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-maproulette-config
+  name: {{ .Release.Name }}-maproulette-api-config
   labels:
     app: {{ template "osm-seed.name" . }}
-    component: maproulette
+    component: maproulette-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 data:
@@ -14,15 +14,15 @@ data:
     include "application.conf"
 
     osm {
-      ql.provider = {{ .Values.maproulette.api.overpassUrl | quote }}
+      ql.provider = {{ .Values.maprouletteApi.overpassUrl | quote }}
       ql.timeout = 120
     }
     maproulette {
-      bootstrap = {{ .Values.maproulette.api.bootstrap }}
+      bootstrap = {{ .Values.maprouletteApi.bootstrap }}
       scheduler.osmMatcher.enabled = false
     }
     play.http.session.sameSite = null
-    {{- with .Values.maproulette.api.extraConfig }}
+    {{- with .Values.maprouletteApi.extraConfig }}
     {{- . | nindent 4 }}
     {{- end }}
 {{- end }}

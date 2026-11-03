@@ -1,13 +1,13 @@
-{{- if and .Values.maproulette.enabled .Values.maproulette.ingress.enabled }}
-{{- $ing := .Values.maproulette.ingress -}}
+{{- if and .Values.maprouletteWeb.enabled .Values.maprouletteWeb.ingress.enabled }}
+{{- $ing := .Values.maprouletteWeb.ingress -}}
 {{- $hosts := $ing.hosts -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-maproulette
+  name: {{ .Release.Name }}-maproulette-web
   labels:
     app: {{ template "osm-seed.name" . }}
-    component: maproulette
+    component: maproulette-web
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
   {{- with $ing.annotations }}
@@ -33,7 +33,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $.Release.Name }}-maproulette
+                name: {{ $.Release.Name }}-maproulette-web
                 port:
                   number: 80
     {{- end }}

@@ -1286,16 +1286,14 @@ osmchaDb:
     values: ["web"]
 
 # ====================================================================================================
-# Variables for MapRoulette (API + web in one pod)
-# The OAuth2 app is created in the OSM website, redirect URI: <publicUrl>/auth/callback
-# Scopes: read_prefs write_prefs write_api
+# Variables for MapRoulette web (frontend + nginx proxy to maprouletteApi)
 # ====================================================================================================
-maproulette:
+maprouletteWeb:
   enabled: false
-  publicUrl: https://maproulette.osmseed.org
-  osmServerUrl: https://www.osmseed.org
-  # Defaults to osmServerUrl
-  osmApiServerUrl: ""
+  image:
+    name: ""
+    tag: ""
+  replicaCount: 1
   priorityClass: "medium-priority"
   serviceAnnotations: {}
   ingress:
@@ -1307,31 +1305,46 @@ maproulette:
     tls:
       enabled: false
       secretName: ""
-  api:
-    image:
-      name: ""
-      tag: ""
-    overpassUrl: https://overpass-api.osmseed.org/api/interpreter
-    # Set true only on the first start with an empty database
-    bootstrap: false
-    # Extra HOCON lines for application-overrides.conf
-    extraConfig: ""
-    # Any MR_* env var from the backend application.conf
-    env:
-      MR_OAUTH_CONSUMER_KEY: abc
-      MR_OAUTH_CONSUMER_SECRET: xyz
-      MR_OSM_OAUTH2SCOPE: "read_prefs write_prefs write_api"
-      APPLICATION_SECRET: changeme
-      MAPROULETTE_SECRET_KEY: changeme
-      # OSM user IDs with admin rights, comma separated
-      MR_SUPER_ACCOUNTS: ""
-      JAVA_OPTS: "-Xms512m -Xmx2g"
-    resources: {}
-  web:
-    image:
-      name: ""
-      tag: ""
-    resources: {}
+  env:
+    MR_URL: https://maproulette.osmseed.org
+    MR_OSM_SERVER: https://www.osmseed.org
+    MR_OSM_API_SERVER: https://www.osmseed.org
+  resources: {}
+  nodeSelector: {}
+  nodeAffinity:
+    enabled: false
+    key: "nodegroup_type"
+    values: ["web"]
+# ====================================================================================================
+# Variables for MapRoulette API
+# OAuth2 app in the OSM website: redirect URI <MR_PUBLIC_ORIGIN>/auth/callback
+# Scopes: read_prefs write_prefs write_api
+# ====================================================================================================
+maprouletteApi:
+  enabled: false
+  image:
+    name: ""
+    tag: ""
+  priorityClass: "medium-priority"
+  overpassUrl: https://overpass-api.osmseed.org/api/interpreter
+  # Set true only on the first start with an empty database
+  bootstrap: false
+  # Extra HOCON lines for application-overrides.conf
+  extraConfig: ""
+  # Any MR_* env var from the backend conf/application.conf
+  env:
+    MR_OSM_SERVER: https://www.osmseed.org
+    MR_FRONTEND_URL: https://maproulette.osmseed.org
+    MR_PUBLIC_ORIGIN: https://maproulette.osmseed.org
+    MR_OAUTH_CONSUMER_KEY: abc
+    MR_OAUTH_CONSUMER_SECRET: xyz
+    MR_OSM_OAUTH2SCOPE: "read_prefs write_prefs write_api"
+    APPLICATION_SECRET: changeme
+    MAPROULETTE_SECRET_KEY: changeme
+    # OSM user IDs with admin rights, comma separated
+    MR_SUPER_ACCOUNTS: ""
+    JAVA_OPTS: "-Xms512m -Xmx2g"
+  resources: {}
   nodeSelector: {}
   nodeAffinity:
     enabled: false
