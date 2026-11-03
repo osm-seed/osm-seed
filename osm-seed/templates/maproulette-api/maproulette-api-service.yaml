@@ -1,0 +1,23 @@
+{{- if .Values.maprouletteApi.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-maproulette-api
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-api
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  # Internal only, maproulette-web proxies /api, /auth and /ws to it.
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+      name: http
+  selector:
+    app: {{ template "osm-seed.name" . }}
+    release: {{ .Release.Name }}
+    run: {{ .Release.Name }}-maproulette-api
+{{- end }}

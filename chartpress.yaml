@@ -79,3 +79,9 @@ charts:
     level0:
       valuesPath: level0.image
       contextPath: images/level0
+    maproulette-api:
+      valuesPath: maprouletteApi.image
+      contextPath: images/maproulette-api
+    maproulette-web:
+      valuesPath: maprouletteWeb.image
+      contextPath: images/maproulette-web

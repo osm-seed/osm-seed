@@ -1286,6 +1286,102 @@ osmchaDb:
     values: ["web"]
 
 # ====================================================================================================
+# Variables for MapRoulette web (frontend + nginx proxy to maprouletteApi)
+# ====================================================================================================
+maprouletteWeb:
+  enabled: false
+  image:
+    name: ""
+    tag: ""
+  replicaCount: 1
+  priorityClass: "medium-priority"
+  serviceAnnotations: {}
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - maproulette.osmseed.org
+    tls:
+      enabled: false
+      secretName: ""
+  env:
+    MR_URL: https://maproulette.osmseed.org
+    MR_OSM_SERVER: https://www.osmseed.org
+    MR_OSM_API_SERVER: https://www.osmseed.org
+  resources: {}
+  nodeSelector: {}
+  nodeAffinity:
+    enabled: false
+    key: "nodegroup_type"
+    values: ["web"]
+# ====================================================================================================
+# Variables for MapRoulette API
+# OAuth2 app in the OSM website: redirect URI <MR_PUBLIC_ORIGIN>/auth/callback
+# Scopes: read_prefs write_prefs write_api
+# ====================================================================================================
+maprouletteApi:
+  enabled: false
+  image:
+    name: ""
+    tag: ""
+  priorityClass: "medium-priority"
+  overpassUrl: https://overpass-api.osmseed.org/api/interpreter
+  # Set true only on the first start with an empty database
+  bootstrap: false
+  # Extra HOCON lines for application-overrides.conf
+  extraConfig: ""
+  # Any MR_* env var from the backend conf/application.conf
+  env:
+    MR_OSM_SERVER: https://www.osmseed.org
+    MR_FRONTEND_URL: https://maproulette.osmseed.org
+    MR_PUBLIC_ORIGIN: https://maproulette.osmseed.org
+    MR_OAUTH_CONSUMER_KEY: abc
+    MR_OAUTH_CONSUMER_SECRET: xyz
+    MR_OSM_OAUTH2SCOPE: "read_prefs write_prefs write_api"
+    APPLICATION_SECRET: changeme
+    MAPROULETTE_SECRET_KEY: changeme
+    # OSM user IDs with admin rights, comma separated
+    MR_SUPER_ACCOUNTS: ""
+    JAVA_OPTS: "-Xms512m -Xmx2g"
+  resources: {}
+  nodeSelector: {}
+  nodeAffinity:
+    enabled: false
+    key: "nodegroup_type"
+    values: ["web"]
+# ====================================================================================================
+# Variables for MapRoulette DB (Postgres + PostGIS)
+# ====================================================================================================
+maprouletteDb:
+  enabled: false
+  image:
+    name: postgis/postgis
+    tag: "17-3.5"
+  priorityClass: "medium-priority"
+  env:
+    POSTGRES_DB: mrdata
+    POSTGRES_USER: mrdbuser
+    POSTGRES_PASSWORD: "1234"
+  resources: {}
+  persistenceDisk:
+    enabled: false
+    accessMode: ReadWriteOnce
+    mountPath: /var/lib/postgresql/data
+    # k3s: staticHostPath=true uses a fixed hostPath dir (reusable across releases); false = dynamic local-path
+    staticHostPath: false
+    localVolumeHostPath: /mnt/db-data/maproulette-data
+    localVolumeSize: 10Gi
+    # AWS
+    AWS_ElasticBlockStore_volumeID: ""
+    AWS_ElasticBlockStore_size: 50Gi
+  nodeSelector: {}
+  nodeAffinity:
+    enabled: false
+    key: "nodegroup_type"
+    values: ["web"]
+
+# ====================================================================================================
 # Planet server files
 # ====================================================================================================
 planetFiles:

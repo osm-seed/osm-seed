@@ -1,0 +1,26 @@
+{{- if .Values.maprouletteWeb.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-maproulette-web
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-web
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+  {{- with .Values.maprouletteWeb.serviceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.serviceType }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+  selector:
+    app: {{ template "osm-seed.name" . }}
+    release: {{ .Release.Name }}
+    run: {{ .Release.Name }}-maproulette-web
+{{- end }}

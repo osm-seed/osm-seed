@@ -1,0 +1,90 @@
+{{- if .Values.maprouletteDb.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-maproulette-db
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-db
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "osm-seed.name" . }}
+      release: {{ .Release.Name }}
+      run: {{ .Release.Name }}-maproulette-db
+  serviceName: {{ .Release.Name }}-maproulette-db
+  template:
+    metadata:
+      labels:
+        app: {{ template "osm-seed.name" . }}
+        release: {{ .Release.Name }}
+        run: {{ .Release.Name }}-maproulette-db
+    spec:
+      # Remove lost+found in EBS disk
+      initContainers:
+        - name: remove-lost-found
+          image: busybox
+          command: ['sh', '-c', 'rm -rf /var/lib/postgresql/data/lost+found']
+          volumeMounts:
+          - name: postgres-storage
+            mountPath: /var/lib/postgresql/data
+        {{- include "osm-seed.volume.owner" (dict "root" . "values" .Values.maprouletteDb "component" "maproulette-db" "volume" "postgres-storage") | nindent 8 }}
+      priorityClassName: {{ .Release.Name }}-{{ .Values.maprouletteDb.priorityClass | default "medium-priority" }}
+      containers:
+        - name: {{ .Chart.Name }}-maproulette-db
+          image: "{{ .Values.maprouletteDb.image.name }}:{{ .Values.maprouletteDb.image.tag }}"
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: PGHOST
+              value: {{ .Release.Name }}-maproulette-db
+            - name: POSTGRES_DB
+              value: {{ .Values.maprouletteDb.env.POSTGRES_DB }}
+            - name: POSTGRES_PASSWORD
+              value: {{ quote .Values.maprouletteDb.env.POSTGRES_PASSWORD }}
+            - name: POSTGRES_USER
+              value: {{ default "postgres" .Values.maprouletteDb.env.POSTGRES_USER | quote }}
+            - name: PGUSER
+              value: {{ default "postgres" .Values.maprouletteDb.env.POSTGRES_USER | quote }}
+            - name: PGDATA
+              value: {{ .Values.maprouletteDb.persistenceDisk.mountPath }}
+            - name: POD_IP
+              valueFrom: { fieldRef: { fieldPath: status.podIP } }
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: {{ .Values.maprouletteDb.persistenceDisk.mountPath }}
+          {{- include "osm-seed.resources" .Values.maprouletteDb | nindent 10 }}
+      volumes:
+        - name: postgres-storage
+        {{- if .Values.maprouletteDb.persistenceDisk.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-maproulette-db-data
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- include "osm-seed.nodeSelector" .Values.maprouletteDb | nindent 6 }}
+      {{- include "osm-seed.nodeAffinity" .Values.maprouletteDb | nindent 6 }}
+{{- end }}
