@@ -1,0 +1,28 @@
+{{- if .Values.maproulette.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-maproulette-config
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+data:
+  # Loaded by the backend with -Dconfig.resource. Secrets and DB settings come from MR_* env vars.
+  application-overrides.conf: |
+    include "application.conf"
+
+    osm {
+      ql.provider = {{ .Values.maproulette.api.overpassUrl | quote }}
+      ql.timeout = 120
+    }
+    maproulette {
+      bootstrap = {{ .Values.maproulette.api.bootstrap }}
+      scheduler.osmMatcher.enabled = false
+    }
+    play.http.session.sameSite = null
+    {{- with .Values.maproulette.api.extraConfig }}
+    {{- . | nindent 4 }}
+    {{- end }}
+{{- end }}

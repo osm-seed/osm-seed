@@ -1,0 +1,26 @@
+# MapRoulette frontend. Based on https://github.com/maproulette/maproulette2-docker
+# URLs are built as placeholders and replaced at container start (see 40-maproulette-env.sh),
+# so the same image works for any osm-seed deployment.
+FROM node:22-bullseye AS builder
+
+ARG GIT=maproulette/maproulette-frontend
+ARG VERSION=v3.18.8
+
+RUN git clone --depth 1 --branch ${VERSION} https://github.com/${GIT}.git /maproulette-frontend
+WORKDIR /maproulette-frontend
+
+COPY env.production .env.local
+RUN echo '[]' > src/customLayers.json
+
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+RUN npm install && npm run build
+
+FROM nginx:1.27-alpine
+
+COPY --from=builder /maproulette-frontend/dist /var/www/maproulette
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+COPY 40-maproulette-env.sh /docker-entrypoint.d/40-maproulette-env.sh
+RUN chmod +x /docker-entrypoint.d/40-maproulette-env.sh
+
+ENV MR_API_URL=http://localhost:9000
+EXPOSE 80
