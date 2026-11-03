@@ -6,6 +6,11 @@ FROM node:22-bullseye AS builder
 ARG GIT=maproulette/maproulette-frontend
 ARG VERSION=v3.18.8
 
+# jq is used by "npm run build-env" to write public/env.json
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y jq \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN git clone --depth 1 --branch ${VERSION} https://github.com/${GIT}.git /maproulette-frontend
 WORKDIR /maproulette-frontend
 
