@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # pgBackRest: WAL archiving and base backups to S3 (webDb.pgbackrest)
-ARG PGBACKREST_VERSION=2.59.1
+ARG PGBACKREST_VERSION=2.59.3
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     "pgbackrest=${PGBACKREST_VERSION}-*" \

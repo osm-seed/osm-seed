@@ -1,0 +1,19 @@
+{{- if .Values.maprouletteDb.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-maproulette-db
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-db
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: {{ template "osm-seed.name" . }}
+    release: {{ .Release.Name }}
+    run: {{ .Release.Name }}-maproulette-db
+{{- end }}

@@ -1,0 +1,30 @@
+{{- if and .Values.maprouletteDb.enabled .Values.maprouletteDb.persistenceDisk.enabled }}
+{{- $pd := dict "root" . "values" .Values.maprouletteDb "name" (printf "%s-maproulette-db-data" .Release.Name) }}
+{{- if include "osm-seed.pv.static" $pd }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-maproulette-db-data
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-db
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  {{- include "osm-seed.pv.spec" $pd | nindent 2 }}
+---
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-maproulette-db-data
+  annotations:
+    "helm.sh/resource-policy": keep
+  labels:
+    app: {{ template "osm-seed.name" . }}
+    component: maproulette-db
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  {{- include "osm-seed.pvc.spec" $pd | nindent 2 }}
+{{- end }}
