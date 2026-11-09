@@ -52,7 +52,7 @@ spec:
             - name: PGUSER
               value: {{ default "postgres" .Values.maprouletteDb.env.POSTGRES_USER | quote }}
             - name: PGDATA
-              value: {{ .Values.maprouletteDb.persistenceDisk.mountPath }}
+              value: {{ .Values.maprouletteDb.persistenceDisk.mountPath }}/pgdata
             - name: POD_IP
               valueFrom: { fieldRef: { fieldPath: status.podIP } }
           livenessProbe:
