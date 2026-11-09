@@ -20,3 +20,16 @@ find /var/www/maproulette -type f \( -name '*.js' -o -name '*.html' -o -name '*.
     -e "s|__MR_ID_EDITOR_URL__|${MR_ID_EDITOR_URL%/}|g" \
     -e "s|__MR_RAPID_EDITOR_URL__|${MR_RAPID_EDITOR_URL%/}|g" \
     {} +
+
+# Any REACT_APP_* env var replaces the same key in env.json,
+# e.g. REACT_APP_TAGINFO_SERVER_URL=https://taginfo.openhistoricalmap.org
+env_json=/var/www/maproulette/env.json
+env | grep '^REACT_APP_[A-Z0-9_]*=' | while IFS='=' read -r key value; do
+  if grep -q "\"$key\"" "$env_json"; then
+    escaped=$(printf '%s' "$value" | sed -e 's/[\\|&"]/\\&/g')
+    sed -i "s|\"$key\": *\"[^\"]*\"|\"$key\": \"$escaped\"|" "$env_json"
+    echo "env.json: $key=$value"
+  else
+    echo "env.json: $key not found, skipped"
+  fi
+done
