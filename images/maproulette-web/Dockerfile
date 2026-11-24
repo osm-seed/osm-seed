@@ -17,6 +17,11 @@ WORKDIR /maproulette-frontend
 COPY env.production .env.local
 RUN echo '[]' > src/customLayers.json
 
+# On the OAuth return page (?code=...), the first whoami gets 401 and calls /auth/signout.
+# That signout can land after /auth/callback and clear the new session. Skip it on that page.
+RUN sed -i 's|^          dispatch(logoutUser());|          if (!new URLSearchParams(window.location.search).has("code")) dispatch(logoutUser());|' src/services/User/User.js \
+    && grep -q 'has("code")) dispatch(logoutUser())' src/services/User/User.js
+
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 RUN npm install && npm run build
 
